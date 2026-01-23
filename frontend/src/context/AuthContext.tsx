@@ -22,6 +22,14 @@ const transformUser = (user: { _id: string; name: string; email: string }) => {
   };
 };
 
+// Define an interface for the error state to include optional array of errors
+interface ValidationError {
+  type: string;
+  msg: string;
+  path: string;
+  location: string;
+}
+
 // Define the shape of our AuthContext state and functions using TypeScript interfaces
 // This ensures that any component using useAuth() knows exactly what data/functions are available
 interface AuthContextType {
@@ -32,7 +40,7 @@ interface AuthContextType {
   // loading state while fetching from backend (prevent race conditions)
   loading: boolean;
   // error messages from failed auth operations (display to user)
-  error: string | null;
+  error: { message: string; errors?: Array<ValidationError> } | null;
   // Functions that components will call to interact with auth
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -53,8 +61,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AuthContextType["user"]>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
+  const [error, setError] = useState<{
+    message: string;
+    errors?: Array<ValidationError>;
+  } | null>(null);
   // Login: Call POST /api/auth/login with email/password, store token/user in state and localStorage
   const login = async (email: string, password: string) => {
     setLoading(true); // Set loading to true at the start of the login process - show spinner / prevent other requests
@@ -77,9 +87,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const message =
           error.response?.data?.message || // Try to get error message from backend response
           genericErrorMessage; // Fallback message if backend doesn't provide one
-        setError(message);
+
+        const validationErrors = error.response?.data?.errors; // Try to get validation errors array from backend response
+
+        setError({
+          message,
+          ...(validationErrors && { errors: validationErrors }),
+        });
       } else {
-        setError(genericErrorMessage);
+        setError({ message: genericErrorMessage });
       }
     } finally {
       setLoading(false); // Set loading to false at the end of the login process - hide spinner / allow other requests
@@ -125,9 +141,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const message =
           error.response?.data?.message || // Try to get error message from backend response
           genericErrorMessage; // Fallback message if backend doesn't provide one
-        setError(message);
+        const validationErrors = error.response?.data?.errors;
+        setError({
+          message,
+          ...(validationErrors && { errors: validationErrors }),
+        });
       } else {
-        setError(genericErrorMessage);
+        setError({ message: genericErrorMessage });
       }
     } finally {
       setLoading(false);
@@ -164,9 +184,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const message =
           error.response?.data?.message || // Try to get error message from backend response
           genericErrorMessage; // Fallback message if backend doesn't provide one
-        setError(message);
+        const validationErrors = error.response?.data?.errors;
+        setError({
+          message,
+          ...(validationErrors && { errors: validationErrors }),
+        });
       } else {
-        setError(genericErrorMessage);
+        setError({ message: genericErrorMessage });
       }
     } finally {
       setLoading(false); // Set loading to false at the end of the login process - hide spinner / allow other requests
@@ -194,9 +218,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null);
       if (axios.isAxiosError(error)) {
         const message = error.response?.data?.message || genericErrorMessage;
-        setError(message);
+        const validationErrors = error.response?.data?.errors;
+        setError({
+          message,
+          ...(validationErrors && { errors: validationErrors }),
+        });
       } else {
-        setError(genericErrorMessage);
+        setError({ message: genericErrorMessage });
       }
     } finally {
       setLoading(false);

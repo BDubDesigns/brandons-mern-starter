@@ -9,7 +9,9 @@ export const handleValidationErrors = (
 ) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    res.status(400).json({ errors: errors.array() });
+    res
+      .status(400)
+      .json({ message: "Validation errors", errors: errors.array() });
     return;
   }
   next();
@@ -24,7 +26,7 @@ export const validateRegister = [
     .isLength({ min: 2 })
     .withMessage("Name must be at least 2 characters"),
   body("email").isEmail().withMessage("Invalid email format"),
-  body("password1")
+  body("password")
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters")
     .matches(/[A-Z]/)
@@ -35,10 +37,10 @@ export const validateRegister = [
     .withMessage("Password must contain digit")
     .matches(/[!@#$%^&*]/)
     .withMessage("Password must contain special character"),
-  body("password2")
+  body("confirmPassword")
     .custom((value, { req }) => {
-      // Check if password2 matches the value of password1 in the request body
-      return value === req.body.password1;
+      // Check if confirmPassword matches the value of password in the request body
+      return value === req.body.password;
     })
     .withMessage("Passwords must match"),
 ];

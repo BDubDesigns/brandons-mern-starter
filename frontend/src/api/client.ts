@@ -30,8 +30,21 @@ apiClient.interceptors.response.use(
   },
   async (error) => {
     // This runs on ERROR (status 400-599)
+    // Prevent infinite loops by checking a custom _retry flag on the request config
     if (error.response?.status === 401 && !error.config._retry) {
       // If we receive a 401 Unauthorized response, the token is likely invalid or expired
+
+      // Don't retry auth endpoints - 401 there means credentials/validation failure
+      // so we should not attempt to refresh the token
+      const requestUrl = error.config.url;
+      if (
+        requestUrl?.includes("/auth/login") ||
+        requestUrl?.includes("/auth/register") ||
+        requestUrl?.includes("/auth/refresh")
+      ) {
+        return Promise.reject(error); // Let the error bubble up
+      }
+
       try {
         // Attempt to refresh the token
         const response = await apiClient.post("/auth/refresh");

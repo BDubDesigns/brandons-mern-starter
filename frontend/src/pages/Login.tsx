@@ -60,7 +60,13 @@ export const Login = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
         <br />
-        {auth.error && <p style={{ color: "red" }}>{auth.error}</p>}
+        {auth.error && <p style={{ color: "red" }}>{auth.error.message}</p>}
+        {auth.error?.errors &&
+          auth.error.errors.map((err, index) => (
+            <p key={index} style={{ color: "red" }}>
+              {err.msg}
+            </p>
+          ))}
         <button type="submit" disabled={auth.loading}>
           {auth.loading ? "Logging in..." : "Login"}
         </button>

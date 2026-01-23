@@ -12,23 +12,23 @@ import {
 // register user controller
 export const registerUser = async (req: Request, res: Response) => {
   // get name, email, and both password fields from the request body
-  const { name, email, password1, password2 } = req.body;
+  const { name, email, password, confirmPassword } = req.body;
 
   // validate that all required fields are provided
-  if (!name || !email || !password1 || !password2) {
+  if (!name || !email || !password || !confirmPassword) {
     res.status(400).json({ message: "All fields are required" });
     return;
   }
 
   // validate that the password and confirm password fields match
-  if (password1 !== password2) {
+  if (password !== confirmPassword) {
     res.status(400).json({ message: "Passwords do not match" });
     return;
   }
   // Email uniqueness is enforced by the User model's unique index; duplicate emails will be caught by error middleware
 
   // create and save the new user to the database using the User model, which will trigger the pre-save middleware to hash the password
-  const newUser = await User.create({ name, email, password: password1 });
+  const newUser = await User.create({ name, email, password });
 
   // generate JWT and refresh token for the new user using the utility function
   const { token, refreshToken } = generateTokens(
@@ -254,17 +254,13 @@ export const updateEmail = async (req: Request, res: Response) => {
   // set the new refresh token as an HTTP-only cookie with a 7 day expiration
   setRefreshTokenCookie(res, refreshToken);
 
+  // prepare the response object with user info except the password
+  const formattedUser = formatUserWithoutPassword(user);
+
   // return the new JWT and updated user info in the response body
   res.status(200).json({
     token,
-    user: {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isVerified: user.isVerified,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    },
+    user: formattedUser,
     message: "Email updated successfully",
   });
 };
