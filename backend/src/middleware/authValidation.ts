@@ -37,12 +37,6 @@ export const validateRegister = [
     .withMessage("Password must contain digit")
     .matches(/[!@#$%^&*]/)
     .withMessage("Password must contain special character"),
-  body("confirmPassword")
-    .custom((value, { req }) => {
-      // Check if confirmPassword matches the value of password in the request body
-      return value === req.body.password;
-    })
-    .withMessage("Passwords must match"),
 ];
 
 // validation rules for login

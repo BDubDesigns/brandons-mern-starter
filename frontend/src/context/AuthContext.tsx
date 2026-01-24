@@ -44,14 +44,14 @@ interface AuthContextType {
   // Functions that components will call to interact with auth
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (
-    name: string,
-    email: string,
-    password: string,
-    confirmPassword: string
-  ) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   // Hydrate user on app load (fetch current user from /api/auth/me)
   getCurrentUser: () => Promise<void>;
+  updatePassword: (
+    currentPassword: string,
+    newPassword: string
+  ) => Promise<void>;
+  updateEmail: (newEmail: string, password: string) => Promise<void>;
 }
 // Create the AuthContext - this is what we'll wrap the entire app with
 // undefined as initial value - AuthProvider will replace it with actual values
@@ -155,12 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Register: Call POST /api/auth/register with name/email/passwords, store token/user in state and localStorage
-  const register = async (
-    name: string,
-    email: string,
-    password: string,
-    confirmPassword: string
-  ) => {
+  const register = async (name: string, email: string, password: string) => {
     setLoading(true);
     setError(null);
 
@@ -169,7 +164,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         name,
         email,
         password,
-        confirmPassword,
       });
       // on success, backend returns { token, user }
       const { token, user } = response.data; // extract token and user data from response
@@ -231,6 +225,62 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // UpdatePassword: Call PATCH /auth/update-password with current and new password
+  // Password is NOT in JWT, so no token regeneration needed - just throw on error and let component handle it
+  const updatePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ) => {
+    try {
+      await apiClient.patch("/auth/update-password", {
+        currentPassword,
+        newPassword,
+      });
+      // On success, don't update state - password change doesn't affect JWT (password not in payload)
+      // Component will handle the success message
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.message || genericErrorMessage;
+        const validationErrors = error.response?.data?.errors;
+        throw {
+          message,
+          ...(validationErrors && { errors: validationErrors }),
+        };
+      } else {
+        throw { message: genericErrorMessage };
+      }
+    }
+  };
+
+  // UpdateEmail: Call PATCH /auth/update-email with new email and password for verification
+  // Email IS in JWT, so backend returns new tokens - need to update localStorage and context
+  const updateEmail = async (newEmail: string, password: string) => {
+    try {
+      const response = await apiClient.patch("/auth/update-email", {
+        newEmail,
+        password,
+      });
+      // On success, backend returns new token and updated user object
+      const { token: newToken, user } = response.data;
+      // Update localStorage with new token
+      localStorage.setItem("token", newToken);
+      // Update state with new token and updated user data
+      setToken(newToken);
+      setUser(transformUser(user));
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.message || genericErrorMessage;
+        const validationErrors = error.response?.data?.errors;
+        throw {
+          message,
+          ...(validationErrors && { errors: validationErrors }),
+        };
+      } else {
+        throw { message: genericErrorMessage };
+      }
+    }
+  };
+
   // Provider component: Exposes auth state and functions to all child components via context
   return (
     <AuthContext.Provider
@@ -243,6 +293,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         register,
         getCurrentUser,
+        updatePassword,
+        updateEmail,
       }}
     >
       {children}

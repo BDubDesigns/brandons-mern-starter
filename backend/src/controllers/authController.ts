@@ -12,19 +12,14 @@ import {
 // register user controller
 export const registerUser = async (req: Request, res: Response) => {
   // get name, email, and both password fields from the request body
-  const { name, email, password, confirmPassword } = req.body;
+  const { name, email, password } = req.body;
 
   // validate that all required fields are provided
-  if (!name || !email || !password || !confirmPassword) {
+  if (!name || !email || !password) {
     res.status(400).json({ message: "All fields are required" });
     return;
   }
 
-  // validate that the password and confirm password fields match
-  if (password !== confirmPassword) {
-    res.status(400).json({ message: "Passwords do not match" });
-    return;
-  }
   // Email uniqueness is enforced by the User model's unique index; duplicate emails will be caught by error middleware
 
   // create and save the new user to the database using the User model, which will trigger the pre-save middleware to hash the password

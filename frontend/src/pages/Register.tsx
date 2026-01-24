@@ -7,7 +7,7 @@ export const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
+  const [validationError, setValidationError] = useState<string | null>(null);
   // call useAuth once and save the returned context value to avoid multiple calls and potential performance issues
   const auth = useAuth();
   // useNavigate hook from react-router to programmatically navigate after successful registration
@@ -23,7 +23,14 @@ export const Register = () => {
   // Handle form submission for registration
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent the default form submission behavior which would cause a page reload
-    await auth.register(name, email, password, confirmPassword); // Call the register function from AuthContext with the form inputs
+    setValidationError(null);
+    // check that password and confirmPassword match before calling register
+    if (password !== confirmPassword) {
+      setValidationError("Passwords do not match");
+      return;
+    }
+
+    await auth.register(name, email, password); // Call the register function from AuthContext with the form inputs
   };
 
   // If loading, show a loading indicator
