@@ -81,5 +81,119 @@ export const Profile = () => {
     }
   };
 
-  return <div>Profile</div>;
+  return (
+    <div>
+      <h1>{auth.user?.name}'s Profile Page</h1>
+      <section>
+        <h2>Change Password</h2>
+        <form onSubmit={handlePasswordChange}>
+          <label>
+            Current Password:
+            <input
+              type="password"
+              value={passwordForm.currentPassword}
+              onChange={(e) =>
+                setPasswordForm({
+                  ...passwordForm,
+                  currentPassword: e.target.value,
+                })
+              }
+            />
+          </label>
+          <br />
+          <label>
+            New Password:
+            <input
+              type="password"
+              value={passwordForm.newPassword}
+              onChange={(e) =>
+                setPasswordForm({
+                  ...passwordForm,
+                  newPassword: e.target.value,
+                })
+              }
+            />
+          </label>
+          <br />
+          <label>
+            Confirm New Password:
+            <input
+              type="password"
+              value={passwordForm.confirmNewPassword}
+              onChange={(e) =>
+                setPasswordForm({
+                  ...passwordForm,
+                  confirmNewPassword: e.target.value,
+                })
+              }
+            />
+          </label>
+          <br />
+          {passwordError && (
+            <p style={{ fontWeight: "bold", color: "red" }}>
+              {passwordError.message}
+            </p>
+          )}
+          {passwordError?.errors &&
+            passwordError.errors.map((err, index) => (
+              <p key={index} style={{ color: "red" }}>
+                {err.msg}
+              </p>
+            ))}
+          {passwordSuccess && (
+            <div style={{ color: "green" }}>Password updated successfully!</div>
+          )}
+          <button type="submit" disabled={passwordLoading}>
+            {passwordLoading ? "Updating..." : "Update Password"}
+          </button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Change Email</h2>
+        <form onSubmit={handleEmailChange}>
+          <p>Current Email: {auth.user?.email}</p>
+          <label>
+            New Email:
+            <input
+              type="email"
+              value={emailForm.newEmail}
+              onChange={(e) =>
+                setEmailForm({ ...emailForm, newEmail: e.target.value })
+              }
+            />
+          </label>
+          <br />
+          <label>
+            Password:
+            <input
+              type="password"
+              value={emailForm.password}
+              onChange={(e) =>
+                setEmailForm({ ...emailForm, password: e.target.value })
+              }
+            />
+          </label>
+          <br />
+          {emailError && (
+            <p style={{ fontWeight: "bold", color: "red" }}>
+              {emailError.message}
+            </p>
+          )}
+          {emailError?.errors &&
+            emailError.errors.map((err, index) => (
+              <p key={index} style={{ color: "red" }}>
+                {err.msg}
+              </p>
+            ))}
+          {emailSuccess && (
+            <div style={{ color: "green" }}>Email updated successfully!</div>
+          )}
+          <button type="submit" disabled={emailLoading}>
+            {emailLoading ? "Updating..." : "Update Email"}
+          </button>
+        </form>
+      </section>
+    </div>
+  );
 };
