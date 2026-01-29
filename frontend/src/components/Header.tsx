@@ -7,7 +7,7 @@ import { MdBrightness7, MdBrightness4, MdBrightnessAuto } from "react-icons/md";
 const getThemeIcon = (choice: "light" | "dark" | null) => {
   if (choice === "light") return <MdBrightness7 />;
   if (choice === "dark") return <MdBrightness4 />;
-  return <MdBrightnessAuto />; // null means "os"
+  return <MdBrightnessAuto size="20" />; // null means "os"
 };
 
 export const Header = () => {
@@ -21,9 +21,9 @@ export const Header = () => {
     </button>
   );
   return (
-    <header>
+    <header className="bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200">
       <nav>
-        <ul>
+        <ul className="flex h-12 items-center space-x-4 p-2">
           {user ? (
             <>
               <li>
@@ -35,7 +35,7 @@ export const Header = () => {
               <li>
                 <Link to="/profile">Profile</Link>
               </li>
-              <li>{themeButton}</li>
+              <li className="items-center">{themeButton}</li>
             </>
           ) : (
             <>

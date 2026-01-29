@@ -1,2 +1,8 @@
 @import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark _));
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer utilities {
+  :where(.dark, .dark _) {
+    color-scheme: dark;
+  }
+}

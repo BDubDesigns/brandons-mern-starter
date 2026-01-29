@@ -83,9 +83,11 @@ export const Profile = () => {
 
   return (
     <div>
-      <h1>{auth.user?.name}'s Profile Page</h1>
+      <h1 className="text-2xl">
+        <span className="font-semi-bold">{auth.user?.name}</span>'s Profile Page
+      </h1>
       <section>
-        <h2>Change Password</h2>
+        <h2 className="text-xl font-semibold">Change Password</h2>
         <form onSubmit={handlePasswordChange}>
           <label>
             Current Password:
@@ -150,7 +152,7 @@ export const Profile = () => {
       </section>
 
       <section>
-        <h2>Change Email</h2>
+        <h2 className="text-xl font-semibold">Change Email</h2>
         <form onSubmit={handleEmailChange}>
           <p>Current Email: {auth.user?.email}</p>
           <label>

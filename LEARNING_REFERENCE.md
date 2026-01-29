@@ -197,3 +197,54 @@ If we used **Pattern 3**, we'd have to:
 - **Augmenting** a type = adding properties to an existing library type
 - Use augmentation when the property needs to be available everywhere
 - Use extension when the property is only needed in specific places
+
+---
+
+## Tailwind v4 Dark Mode Implementation
+
+### **The Problem:**
+
+In Tailwind v4, you can successfully toggle the `.dark` class on `document.documentElement`, and default elements (text, background) switch themes automatically. But when you add explicit `dark:` prefixed classes like `dark:bg-slate-900`, they always apply regardless of theme mode.
+
+**The Solution:**
+Tailwind v4 requires a `@custom-variant` declaration to tell it when to apply `dark:` classes.
+
+**Code Example:**
+
+```css
+/* index.css */
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+@layer utilities {
+  :where(.dark, .dark _) {
+    color-scheme: dark;
+  }
+}
+```
+
+```tsx
+/* Component usage */
+<header className="bg-slate-50 dark:bg-slate-900 text-black dark:text-white">
+  {/* This will now correctly show slate-50 in light mode, slate-900 in dark mode */}
+</header>
+```
+
+**When to Use:**
+
+- Always, when using Tailwind v4 with manual dark mode toggling
+- Required for any `dark:` prefixed utilities to work conditionally
+- Different from v3 which used `darkMode: 'class'` in config file
+
+**Why It Matters:**
+
+- **Conditional styling:** Without `@custom-variant`, `dark:` classes apply all the time
+- **v4 pattern:** No config file needed, CSS-only solution
+- **Professional theming:** Enables proper light/dark mode implementations
+- **Interview knowledge:** Understanding the difference between v3 and v4 dark mode patterns
+
+### **The Debugging Process:**
+
+1. **Symptom:** `dark:bg-slate-900` always applies, overriding light mode
+2. **Root cause:** Missing `@custom-variant` declaration
+3. **Fix:** Add `@custom-variant dark (&:where(.dark, .dark *));` to CSS
+4. **Result:** `dark:` classes only apply when `.dark` class exists in DOM tree
