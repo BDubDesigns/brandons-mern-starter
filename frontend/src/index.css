@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* 1. Add your colors in the @theme block.
+   2. Use light-dark(light_color, dark_color).
+   This works because your @layer utilities block below 
+   tells the browser "we are in dark mode" when the class is present.
+*/
+@theme {
+  --color-primary-500: light-dark(#ef4444, #f87171);
+}
+
 @layer utilities {
   :where(.dark, .dark _) {
     color-scheme: dark;
