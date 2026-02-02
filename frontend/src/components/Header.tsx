@@ -20,14 +20,21 @@ export const Header = () => {
   // hambuger menu state (for mobile)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // nav item class for desktop
   const navClass =
     "flex h-full items-center p-2 m-2 rounded-lg border-2 border-border bg-interactive hover:bg-interactive-hover text-text";
+  // nav item class for mobile
+  const mobileNavClass = "border-border flex h-11 items-center border-b pl-2";
 
+  // theme button element
   const themeButton = (
     <button className={navClass} aria-label="Cycle theme" onClick={cycleTheme}>
       {getThemeIcon(choice)}
     </button>
   );
+
+  // conditionally generate a list of nav items based on auth state
+  // this is to keep our component dumb, and only display whats given, not decide what to show
 
   return (
     <header className="bg-surface text-text border-border border-b-2 font-semibold">
@@ -72,21 +79,24 @@ export const Header = () => {
       </nav>
 
       {/* Mobile nav */}
-      <nav className="bg-surface text-text border-border flex items-center border-b font-semibold md:hidden">
-        <span className="mr-auto flex pl-2 text-3xl font-bold">
-          <Link to="/">MS</Link>
-        </span>
-        <span
-          className="border-border bg-interactive hover:bg-interactive-hover m-2 ml-auto rounded-lg border-2 p-2"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          <GiHamburgerMenu size="24" />
-        </span>
+      <nav className="md:hidden">
+        <div className="bg-surface text-text border-border flex items-center border-b font-semibold">
+          <span className="mr-auto flex pl-2 text-3xl font-bold">
+            <Link to="/">MS</Link>
+          </span>
+          <span>{themeButton}</span>
+          <span
+            className="border-border bg-interactive hover:bg-interactive-hover m-2 rounded-lg border-2 p-2"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <GiHamburgerMenu size="24" />
+          </span>
+        </div>
         <ul>
           {isMenuOpen && (
             <>
-              <li>Heres a link</li>
-              <li>heres anothser</li>
+              <li className={mobileNavClass}>Heres a link</li>
+              <li className={mobileNavClass}>heres anothser</li>
             </>
           )}
         </ul>
