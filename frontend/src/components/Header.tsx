@@ -20,21 +20,33 @@ export const Header = () => {
   // hambuger menu state (for mobile)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // nav item class for desktop
-  const navClass =
-    "flex h-full items-center p-2 m-2 rounded-lg border-2 border-border bg-interactive hover:bg-interactive-hover text-text";
-  // nav item class for mobile
-  const mobileNavClass = "border-border flex h-11 items-center border-b pl-2";
+  // Define the visual style for interactive elements (Buttons/Links)
+  // Moved 'flex h-full items-center' here ensures the content centers within the button
+  const interactiveClass =
+    "flex h-full w-full items-center p-2 m-2 rounded-lg border-2 border-border bg-interactive hover:bg-interactive-hover text-text cursor-pointer";
 
   // theme button element
   const themeButton = (
-    <button className={navClass} aria-label="Cycle theme" onClick={cycleTheme}>
+    <button
+      className={interactiveClass}
+      aria-label="Cycle theme"
+      onClick={cycleTheme}
+    >
       {getThemeIcon(choice)}
     </button>
   );
 
   // conditionally generate a list of nav items based on auth state
-  // this is to keep our component dumb, and only display whats given, not decide what to show
+  const navItems = user
+    ? [
+        { label: user.name, type: "span" },
+        { label: "Profile", type: "link", to: "/profile" },
+        { label: "Logout", type: "button", onClick: logout },
+      ]
+    : [
+        { label: "Login", type: "link", to: "/login" },
+        { label: "Register", type: "link", to: "/register" },
+      ];
 
   return (
     <header className="bg-surface text-text border-border border-b-2 font-semibold">
@@ -43,38 +55,30 @@ export const Header = () => {
         <ul className="flex w-full items-center">
           <li className="ml-2 font-bold">MERN-Starter</li>
 
-          {user ? (
-            <>
-              <li className="ml-auto">
-                <span>Welcome, {user.name}!</span>
-              </li>
-              <li>
-                <Link className={navClass} to="/profile">
-                  Profile
+          {navItems.map((item, index) => (
+            <li
+              key={index}
+              // The <li> now only handles layout positioning (ml-auto for the first item)
+              // Visual styles are removed from here
+              className={`flex items-center ${index === 0 ? "ml-auto" : ""}`}
+            >
+              {item.type === "link" && item.to && (
+                <Link className={interactiveClass} to={item.to}>
+                  {item.label}
                 </Link>
-              </li>
-              <li>
-                <button className={navClass} onClick={logout}>
-                  Logout
+              )}
+              {item.type === "button" && item.onClick && (
+                <button className={interactiveClass} onClick={item.onClick}>
+                  {item.label}
                 </button>
-              </li>
-            </>
-          ) : (
-            <>
-              <li className="ml-auto">
-                <Link className={navClass} to="/login">
-                  Login
-                </Link>
-              </li>
-              <li>
-                <Link className={navClass} to="/register">
-                  Register
-                </Link>
-              </li>
-            </>
-          )}
-
-          <li>{themeButton}</li>
+              )}
+              {item.type === "span" && (
+                <span className="m-2 p-2">{item.label}</span>
+              )}
+            </li>
+          ))}
+          {/* Theme button needs to be wrapped in a flex item to align correctly. I'd be lying if I said I fully understandy why.*/}
+          <li className="flex items-center">{themeButton}</li>
         </ul>
       </nav>
 
@@ -84,7 +88,7 @@ export const Header = () => {
           <span className="mr-auto flex pl-2 text-3xl font-bold">
             <Link to="/">MS</Link>
           </span>
-          <span>{themeButton}</span>
+          <span className="flex items-center">{themeButton}</span>
           <span
             className="border-border bg-interactive hover:bg-interactive-hover m-2 rounded-lg border-2 p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -95,8 +99,35 @@ export const Header = () => {
         <ul>
           {isMenuOpen && (
             <>
-              <li className={mobileNavClass}>Heres a link</li>
-              <li className={mobileNavClass}>heres anothser</li>
+              {navItems.map((item, index) => (
+                <li
+                  key={index}
+                  className="border-border flex h-11 items-center border-b pl-2"
+                >
+                  {item.type === "link" && item.to && (
+                    <Link
+                      className="flex h-full w-full items-center"
+                      to={item.to}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  )}
+                  {item.type === "button" && item.onClick && (
+                    <button
+                      className="flex h-full w-full cursor-pointer items-center text-left"
+                      onClick={() => {
+                        item.onClick();
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      {item.label}
+                    </button>
+                  )}
+                  {/* For now, we don't show text spans on mobile */}
+                  {/* {item.type === "span" && <span>{item.label}</span>} */}
+                </li>
+              ))}
             </>
           )}
         </ul>
