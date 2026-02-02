@@ -1,7 +1,10 @@
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useState } from "react";
 import { Link } from "react-router";
+// import icons
 import { MdBrightness7, MdBrightness4, MdBrightnessAuto } from "react-icons/md";
+import { GiHamburgerMenu } from "react-icons/gi";
 
 // helper function to get icon for theme choice
 const getThemeIcon = (choice: "light" | "dark" | null) => {
@@ -14,46 +17,76 @@ export const Header = () => {
   // get auth and theme context
   const { user, logout } = useAuth();
   const { choice, cycleTheme } = useTheme();
+  // hambuger menu state (for mobile)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const navClass =
+    "flex h-full items-center p-2 m-2 rounded-lg border-2 border-border bg-interactive hover:bg-interactive-hover text-text";
 
   const themeButton = (
-    <button
-      className="flex h-full w-full items-center justify-center"
-      aria-label="Cycle theme"
-      onClick={cycleTheme}
-    >
+    <button className={navClass} aria-label="Cycle theme" onClick={cycleTheme}>
       {getThemeIcon(choice)}
     </button>
   );
 
-  const liClass =
-    "flex h-full items-center px-2 m-2 rounded-sm dark:hover:bg-zinc-900 hover:bg-zinc-300";
   return (
-    <header className="bg-zinc-200 font-semibold text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200">
-      <nav className="flex h-14 items-center">
-        <ul className="flex h-12 items-center space-x-2">
+    <header className="bg-surface text-text border-border border-b-2 font-semibold">
+      {/* Desktop nav */}
+      <nav className="hidden h-14 items-center md:flex">
+        <ul className="flex w-full items-center">
+          <li className="ml-2 font-bold">MERN-Starter</li>
+
           {user ? (
             <>
-              {/* give the li a gradient background */}
-              <li className="ml-2">
+              <li className="ml-auto">
                 <span>Welcome, {user.name}!</span>
               </li>
-              <li className={liClass}>
-                <button onClick={logout}>Logout</button>
+              <li>
+                <Link className={navClass} to="/profile">
+                  Profile
+                </Link>
               </li>
-              <li className={liClass}>
-                <Link to="/profile">Profile</Link>
+              <li>
+                <button className={navClass} onClick={logout}>
+                  Logout
+                </button>
               </li>
-              <li className={liClass}>{themeButton}</li>
             </>
           ) : (
             <>
-              <li className={liClass}>
-                <Link to="/login">Login</Link>
+              <li className="ml-auto">
+                <Link className={navClass} to="/login">
+                  Login
+                </Link>
               </li>
-              <li className={liClass}>
-                <Link to="/register">Register</Link>
+              <li>
+                <Link className={navClass} to="/register">
+                  Register
+                </Link>
               </li>
-              <li className={liClass}>{themeButton}</li>
+            </>
+          )}
+
+          <li>{themeButton}</li>
+        </ul>
+      </nav>
+
+      {/* Mobile nav */}
+      <nav className="bg-surface text-text border-border flex items-center border-b font-semibold md:hidden">
+        <span className="mr-auto flex pl-2 text-3xl font-bold">
+          <Link to="/">MS</Link>
+        </span>
+        <span
+          className="border-border bg-interactive hover:bg-interactive-hover m-2 ml-auto rounded-lg border-2 p-2"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          <GiHamburgerMenu size="24" />
+        </span>
+        <ul>
+          {isMenuOpen && (
+            <>
+              <li>Heres a link</li>
+              <li>heres anothser</li>
             </>
           )}
         </ul>
