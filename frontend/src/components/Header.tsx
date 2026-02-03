@@ -99,35 +99,38 @@ export const Header = () => {
         <ul>
           {isMenuOpen && (
             <>
-              {navItems.map((item, index) => (
-                <li
-                  key={index}
-                  className="border-border flex h-11 items-center border-b pl-2"
-                >
-                  {item.type === "link" && item.to && (
-                    <Link
-                      className="flex h-full w-full items-center"
-                      to={item.to}
-                      onClick={() => setIsMenuOpen(false)}
+              {navItems.map(
+                (item, index) =>
+                  item.type !== "span" && (
+                    <li
+                      key={index}
+                      className="border-border flex h-11 items-center border-b pl-2"
                     >
-                      {item.label}
-                    </Link>
-                  )}
-                  {item.type === "button" && item.onClick && (
-                    <button
-                      className="flex h-full w-full cursor-pointer items-center text-left"
-                      onClick={() => {
-                        item.onClick();
-                        setIsMenuOpen(false);
-                      }}
-                    >
-                      {item.label}
-                    </button>
-                  )}
-                  {/* For now, we don't show text spans on mobile */}
-                  {/* {item.type === "span" && <span>{item.label}</span>} */}
-                </li>
-              ))}
+                      {item.type === "link" && item.to && (
+                        <Link
+                          className="flex h-full w-full items-center"
+                          to={item.to}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {item.label}
+                        </Link>
+                      )}
+                      {item.type === "button" && item.onClick && (
+                        <button
+                          className="flex h-full w-full cursor-pointer items-center text-left"
+                          onClick={() => {
+                            item.onClick();
+                            setIsMenuOpen(false);
+                          }}
+                        >
+                          {item.label}
+                        </button>
+                      )}
+                      {/* For now, we don't show text spans on mobile */}
+                      {item.type === "span" && <span>{item.label}</span>}
+                    </li>
+                  ),
+              )}
             </>
           )}
         </ul>
