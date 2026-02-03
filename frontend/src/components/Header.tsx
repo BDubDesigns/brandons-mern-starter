@@ -49,7 +49,7 @@ export const Header = () => {
       ];
 
   return (
-    <header className="bg-surface text-text border-border border-b-2 font-semibold">
+    <header className="bg-surface text-text border-border mb-4 border-b-2 font-semibold">
       {/* Desktop nav */}
       <nav className="hidden h-14 items-center md:flex">
         <ul className="flex w-full items-center">
@@ -58,8 +58,6 @@ export const Header = () => {
           {navItems.map((item, index) => (
             <li
               key={index}
-              // The <li> now only handles layout positioning (ml-auto for the first item)
-              // Visual styles are removed from here
               className={`flex items-center ${index === 0 ? "ml-auto" : ""}`}
             >
               {item.type === "link" && item.to && (
@@ -126,8 +124,6 @@ export const Header = () => {
                           {item.label}
                         </button>
                       )}
-                      {/* For now, we don't show text spans on mobile */}
-                      {item.type === "span" && <span>{item.label}</span>}
                     </li>
                   ),
               )}

@@ -38,38 +38,47 @@ export const Login = () => {
   }
 
   return (
-    <div>
-      <h1>Login Page</h1>
-      <h3>Enter your credentials to log in.</h3>
+    <div className="bg-surface mr-auto ml-auto flex max-w-md flex-col items-center justify-center rounded-lg p-4">
+      <h1 className="text-3xl font-bold underline">Login Page</h1>
+      <h3 className="my-4 text-xl">Enter your credentials to log in.</h3>
       <form onSubmit={handleLogin}>
-        Email:{" "}
-        <input
-          type="email"
-          name="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <br />
-        Password:{" "}
-        <input
-          type="password"
-          name="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <br />
-        {auth.error && <p style={{ color: "red" }}>{auth.error.message}</p>}
-        {auth.error?.errors &&
-          auth.error.errors.map((err, index) => (
-            <p key={index} style={{ color: "red" }}>
-              {err.msg}
-            </p>
-          ))}
-        <button type="submit" disabled={auth.loading}>
-          {auth.loading ? "Logging in..." : "Login"}
-        </button>
+        <fieldset className="rounded-lg border">
+          <legend>Login Credentials</legend>
+          Email:{" "}
+          <input
+            type="email"
+            name="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <br />
+          Password:{" "}
+          <input
+            type="password"
+            name="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <br />
+          {auth.error && (
+            <p className="text-text-error">{auth.error.message}</p>
+          )}
+          {auth.error?.errors &&
+            auth.error.errors.map((err, index) => (
+              <p key={index} className="text-text-error">
+                {err.msg}
+              </p>
+            ))}
+          <button
+            type="submit"
+            disabled={auth.loading}
+            className="bg-interactive border-border text-text hover:bg-interactive-hover rounded border-2 px-4 py-2 font-semibold"
+          >
+            {auth.loading ? "Logging in..." : "Login"}
+          </button>
+        </fieldset>
       </form>
     </div>
   );
