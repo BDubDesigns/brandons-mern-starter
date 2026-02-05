@@ -49,7 +49,7 @@ export const Header = () => {
       ];
 
   return (
-    <header className="bg-surface text-text border-border mb-4 border-b-2 font-semibold">
+    <header className="bg-surface text-text border-border mb-2 border-b-2 font-semibold">
       {/* Desktop nav */}
       <nav className="hidden h-14 items-center md:flex">
         <ul className="flex w-full items-center">

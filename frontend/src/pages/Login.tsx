@@ -38,14 +38,15 @@ export const Login = () => {
   }
 
   return (
-    <div className="bg-surface mr-auto ml-auto flex max-w-md flex-col items-center justify-center rounded-lg p-4">
+    <div className="bg-surface mr-auto ml-auto flex max-w-xl flex-col items-center justify-center rounded-xl p-4">
       <h1 className="text-3xl font-bold underline">Login Page</h1>
       <h3 className="my-4 text-xl">Enter your credentials to log in.</h3>
       <form onSubmit={handleLogin}>
-        <fieldset className="rounded-lg border">
+        <fieldset className="border-border rounded-lg border-2">
           <legend>Login Credentials</legend>
           Email:{" "}
           <input
+            className="bg-surface-input border-border rounded-sm border-2"
             type="email"
             name="email"
             required
@@ -55,6 +56,7 @@ export const Login = () => {
           <br />
           Password:{" "}
           <input
+            className="bg-surface-input border-border rounded-sm border-2"
             type="password"
             name="password"
             required

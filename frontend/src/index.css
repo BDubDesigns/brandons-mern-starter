@@ -9,11 +9,11 @@
   --color-surface: light-dark(#e4e4e7, #27272a);
 
   /* Input surfaces (form inputs, textareas) */
-  --color-surface-input: light-dark(#f4f4f5, #3f3f46); /* slightly lighter */
+  --color-surface-input: light-dark(#f4f4f5, #3b3b3c); /* slightly lighter */
 
   /* Interactive elements (nav buttons, links) */
   --color-interactive: light-dark(#f4f4f5, rgba(113, 113, 122, 0.1));
-  --color-interactive-hover: light-dark(#ffffff, #09090b);
+  --color-interactive-hover: light-dark(#ffffff, #1e1e1e);
 
   /* Text colors */
   --color-text: light-dark(#18181b, #e4e4e7);
@@ -21,7 +21,7 @@
   --color-text-success: light-dark(#15803d, #86efac);
 
   /* Border Color */
-  --color-border: light-dark(#d4d4d8, #3f3f46);
+  --color-border: light-dark(#d4d4d8, #55555e);
 }
 
 @layer utilities {
