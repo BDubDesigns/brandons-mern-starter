@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext"; // Import the useAuth hook to access authentication functions and state from AuthContext
-import { FormButton } from "../components/FormButton";
+import { Button } from "../components/Button";
 import { FormInput } from "../components/FormInput";
+import { PageCard } from "../components/PageCard";
 
 export const Login = () => {
   // Local state for form inputs
@@ -22,6 +23,11 @@ export const Login = () => {
     }
   }, [auth.token, auth.loading, navigate]); // we include navigate in the dependency array to avoid potential issues with stale closures, even though navigate is stable from useNavigate
 
+  // useEffect to clear errors on mount
+  useEffect(() => {
+    auth.clearError();
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent the default form submission behavior which would cause a page reload
     await auth.login(email, password); // Call the login function from AuthContext with the email and password from the form inputs
@@ -40,9 +46,7 @@ export const Login = () => {
   }
 
   return (
-    <div className="bg-surface mr-auto ml-auto flex max-w-xl flex-col items-center justify-center rounded-xl p-4">
-      <h1 className="text-3xl font-bold underline">Login Page</h1>
-      <h3 className="my-4 text-xl">Enter your credentials to log in.</h3>
+    <PageCard title="Login Page" subtitle="Enter your credentials to log in.">
       <form onSubmit={handleLogin}>
         <fieldset>
           <legend className="pb-4 text-2xl font-semibold">
@@ -77,12 +81,12 @@ export const Login = () => {
               </p>
             ))}
           <div className="flex justify-center pb-4">
-            <FormButton type="submit" loading={auth.loading}>
+            <Button type="submit" loading={auth.loading}>
               Login
-            </FormButton>
+            </Button>
           </div>
         </fieldset>
       </form>
-    </div>
+    </PageCard>
   );
 };

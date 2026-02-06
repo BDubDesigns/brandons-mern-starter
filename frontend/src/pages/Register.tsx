@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext"; // Import the useAuth hook to access authentication functions and state from AuthContext
-// import FormInput and FormButton components
+// import FormInput, PageCard, and Button components
 import { FormInput } from "../components/FormInput";
-import { FormButton } from "../components/FormButton";
+import { Button } from "../components/Button";
+import { PageCard } from "../components/PageCard";
 
 export const Register = () => {
   const [name, setName] = useState("");
@@ -23,6 +24,11 @@ export const Register = () => {
     }
   }, [auth.token, auth.loading, navigate]); // we include navigate in the dependency array to avoid potential issues with stale closures, even though navigate is stable from useNavigate
 
+  // useEffect to clear errors on mount
+  useEffect(() => {
+    auth.clearError();
+  }, []);
+
   // Handle form submission for registration
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent the default form submission behavior which would cause a page reload
@@ -32,7 +38,7 @@ export const Register = () => {
       setValidationError("Passwords do not match");
       return;
     }
-
+    console.log("registering");
     await auth.register(name, email, password); // Call the register function from AuthContext with the form inputs
   };
 
@@ -50,9 +56,7 @@ export const Register = () => {
   }
 
   return (
-    <div className="bg-surface mr-auto ml-auto flex max-w-xl flex-col items-center justify-center rounded-xl p-4">
-      <h1 className="text-3xl font-bold underline">Register Page</h1>
-      <h3 className="my-4 text-xl">Create a new account.</h3>
+    <PageCard title="Register Page" subtitle="Create a new account.">
       <form onSubmit={handleRegister}>
         <fieldset>
           <legend className="pb-4 text-2xl font-semibold">
@@ -102,12 +106,12 @@ export const Register = () => {
               </p>
             ))}
           <div className="flex justify-center pt-2 pb-4">
-            <FormButton type="submit" loading={auth.loading}>
+            <Button type="submit" loading={auth.loading}>
               Register
-            </FormButton>
+            </Button>
           </div>
         </fieldset>
       </form>
-    </div>
+    </PageCard>
   );
 };

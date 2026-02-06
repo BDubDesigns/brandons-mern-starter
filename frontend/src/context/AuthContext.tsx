@@ -49,9 +49,10 @@ interface AuthContextType {
   getCurrentUser: () => Promise<void>;
   updatePassword: (
     currentPassword: string,
-    newPassword: string
+    newPassword: string,
   ) => Promise<void>;
   updateEmail: (newEmail: string, password: string) => Promise<void>;
+  clearError: () => void;
 }
 // Create the AuthContext - this is what we'll wrap the entire app with
 // undefined as initial value - AuthProvider will replace it with actual values
@@ -84,9 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // Check if the error is an AxiosError to safely access response data
-        const message =
-          error.response?.data?.message || // Try to get error message from backend response
-          genericErrorMessage; // Fallback message if backend doesn't provide one
+        const message = error.response?.data?.message || genericErrorMessage; // Try to get error message from backend response // Fallback message if backend doesn't provide one
 
         const validationErrors = error.response?.data?.errors; // Try to get validation errors array from backend response
 
@@ -138,9 +137,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Check if the error is an AxiosError to safely access response data
       if (axios.isAxiosError(error)) {
-        const message =
-          error.response?.data?.message || // Try to get error message from backend response
-          genericErrorMessage; // Fallback message if backend doesn't provide one
+        const message = error.response?.data?.message || genericErrorMessage; // Try to get error message from backend response // Fallback message if backend doesn't provide one
         const validationErrors = error.response?.data?.errors;
         setError({
           message,
@@ -175,9 +172,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // Check if the error is an AxiosError to safely access response data
-        const message =
-          error.response?.data?.message || // Try to get error message from backend response
-          genericErrorMessage; // Fallback message if backend doesn't provide one
+        const message = error.response?.data?.message || genericErrorMessage; // Try to get error message from backend response // Fallback message if backend doesn't provide one
         const validationErrors = error.response?.data?.errors;
         setError({
           message,
@@ -229,7 +224,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Password is NOT in JWT, so no token regeneration needed - just throw on error and let component handle it
   const updatePassword = async (
     currentPassword: string,
-    newPassword: string
+    newPassword: string,
   ) => {
     try {
       await apiClient.patch("/auth/update-password", {
@@ -281,6 +276,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // ClearError: Resets the error state to null
+  const clearError = () => {
+    setError(null);
+  };
+
   // Provider component: Exposes auth state and functions to all child components via context
   return (
     <AuthContext.Provider
@@ -295,6 +295,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         getCurrentUser,
         updatePassword,
         updateEmail,
+        clearError,
       }}
     >
       {children}

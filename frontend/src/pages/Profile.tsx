@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { PageCard } from "../components/PageCard";
 
 // Define interface for form error states
 interface FormError {
@@ -44,7 +45,7 @@ export const Profile = () => {
     try {
       await auth.updatePassword(
         passwordForm.currentPassword,
-        passwordForm.newPassword
+        passwordForm.newPassword,
       );
       // success - reset form and show success message
       setPasswordForm({
@@ -82,7 +83,7 @@ export const Profile = () => {
   };
 
   return (
-    <div>
+    <PageCard title="Profile Page" subtitle={`Welcome, ${auth.user?.name}`}>
       <h1 className="text-2xl">
         <span className="font-semi-bold">{auth.user?.name}</span>'s Profile Page
       </h1>
@@ -196,6 +197,6 @@ export const Profile = () => {
           </button>
         </form>
       </section>
-    </div>
+    </PageCard>
   );
 };
