@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext"; // Import the useAuth hook to access authentication functions and state from AuthContext
+// import FormInput and FormButton components
+import { FormInput } from "../components/FormInput";
+import { FormButton } from "../components/FormButton";
 
 export const Register = () => {
   const [name, setName] = useState("");
@@ -47,49 +50,64 @@ export const Register = () => {
   }
 
   return (
-    <form onSubmit={handleRegister}>
-      <h1>Register Page</h1>
-      <h3>Create a new account.</h3>
-      Name:{" "}
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <br />
-      Email:{" "}
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <br />
-      Password:{" "}
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <br />
-      Confirm Password:{" "}
-      <input
-        type="password"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-      />
-      <br />
-      {auth.error && (
-        <p style={{ fontWeight: "bold", color: "red" }}>{auth.error.message}</p>
-      )}
-      {auth.error?.errors &&
-        auth.error.errors.map((err, index) => (
-          <p key={index} style={{ color: "red" }}>
-            {err.msg}
-          </p>
-        ))}
-      <button type="submit" disabled={auth.loading}>
-        {auth.loading ? "Registering..." : "Register"}
-      </button>
-    </form>
+    <div className="bg-surface mr-auto ml-auto flex max-w-xl flex-col items-center justify-center rounded-xl p-4">
+      <h1 className="text-3xl font-bold underline">Register Page</h1>
+      <h3 className="my-4 text-xl">Create a new account.</h3>
+      <form onSubmit={handleRegister}>
+        <fieldset>
+          <legend className="pb-4 text-2xl font-semibold">
+            Enter your details
+          </legend>
+          <FormInput
+            type="text"
+            label="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <br />
+          <FormInput
+            type="email"
+            label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <br />
+          <FormInput
+            type="password"
+            label="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <br />
+          <FormInput
+            type="password"
+            label="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+          <br />
+          {auth.error && (
+            <p className="text-text-error" style={{ fontWeight: "bold" }}>
+              {auth.error.message}
+            </p>
+          )}
+          {auth.error?.errors &&
+            auth.error.errors.map((err, index) => (
+              <p key={index} className="text-text-error">
+                {err.msg}
+              </p>
+            ))}
+          <div className="flex justify-center pt-2 pb-4">
+            <FormButton type="submit" loading={auth.loading}>
+              Register
+            </FormButton>
+          </div>
+        </fieldset>
+      </form>
+    </div>
   );
 };
