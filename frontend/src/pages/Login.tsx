@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext"; // Import the useAuth hook to access authentication functions and state from AuthContext
+import { FormButton } from "../components/FormButton";
+import { FormInput } from "../components/FormInput";
 
 export const Login = () => {
   // Local state for form inputs
@@ -42,23 +44,24 @@ export const Login = () => {
       <h1 className="text-3xl font-bold underline">Login Page</h1>
       <h3 className="my-4 text-xl">Enter your credentials to log in.</h3>
       <form onSubmit={handleLogin}>
-        <fieldset className="border-border rounded-lg border-2">
-          <legend>Login Credentials</legend>
-          Email:{" "}
-          <input
-            className="bg-surface-input border-border rounded-sm border-2"
+        <fieldset>
+          <legend className="pb-4 text-2xl font-semibold">
+            Enter your credentials
+          </legend>
+
+          <FormInput
             type="email"
             name="email"
+            label="Email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
           <br />
-          Password:{" "}
-          <input
-            className="bg-surface-input border-border rounded-sm border-2"
+          <FormInput
             type="password"
             name="password"
+            label="Password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -73,13 +76,11 @@ export const Login = () => {
                 {err.msg}
               </p>
             ))}
-          <button
-            type="submit"
-            disabled={auth.loading}
-            className="bg-interactive border-border text-text hover:bg-interactive-hover rounded border-2 px-4 py-2 font-semibold"
-          >
-            {auth.loading ? "Logging in..." : "Login"}
-          </button>
+          <div className="flex justify-center pb-4">
+            <FormButton type="submit" loading={auth.loading}>
+              Login
+            </FormButton>
+          </div>
         </fieldset>
       </form>
     </div>
