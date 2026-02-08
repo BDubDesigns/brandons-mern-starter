@@ -81,7 +81,7 @@ export const Login = () => {
               </p>
             ))}
           <div className="flex justify-center pb-4">
-            <Button type="submit" loading={auth.loading}>
+            <Button className="w-full" type="submit" loading={auth.loading}>
               Login
             </Button>
           </div>

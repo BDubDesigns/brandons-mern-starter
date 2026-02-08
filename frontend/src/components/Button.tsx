@@ -12,7 +12,7 @@ export const Button = ({
 }: ButtonProps) => {
   return (
     <button
-      className={`bg-interactive border-border text-text hover:bg-interactive-hover rounded border-2 px-4 py-2 font-semibold ${className}`}
+      className={`bg-interactive border-border text-text hover:bg-interactive-hover rounded-lg border-2 px-4 py-2 font-semibold ${className}`}
       disabled={loading}
       type={type}
       {...props}

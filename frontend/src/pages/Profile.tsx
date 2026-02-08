@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { PageCard } from "../components/PageCard";
+import { FormInput } from "../components/FormInput";
+import { Button } from "../components/Button";
+import { Divider } from "../components/Divider";
 
 // Define interface for form error states
 interface FormError {
@@ -83,17 +86,17 @@ export const Profile = () => {
   };
 
   return (
-    <PageCard title="Profile Page" subtitle={`Welcome, ${auth.user?.name}`}>
-      <h1 className="text-2xl">
-        <span className="font-semi-bold">{auth.user?.name}</span>'s Profile Page
-      </h1>
+    <PageCard title="Profile Page" subtitle={`${auth.user?.name}'s Profile`}>
       <section>
-        <h2 className="text-xl font-semibold">Change Password</h2>
         <form onSubmit={handlePasswordChange}>
-          <label>
-            Current Password:
-            <input
+          <fieldset>
+            <legend className="mb-2 text-xl font-semibold">
+              Change Password
+            </legend>
+            <FormInput
               type="password"
+              label="Current Password"
+              className="mb-2"
               value={passwordForm.currentPassword}
               onChange={(e) =>
                 setPasswordForm({
@@ -102,12 +105,10 @@ export const Profile = () => {
                 })
               }
             />
-          </label>
-          <br />
-          <label>
-            New Password:
-            <input
+            <FormInput
               type="password"
+              label="New Password"
+              className="mb-2"
               value={passwordForm.newPassword}
               onChange={(e) =>
                 setPasswordForm({
@@ -116,12 +117,10 @@ export const Profile = () => {
                 })
               }
             />
-          </label>
-          <br />
-          <label>
-            Confirm New Password:
-            <input
+            <FormInput
               type="password"
+              label="Confirm New Password"
+              className="mb-2"
               value={passwordForm.confirmNewPassword}
               onChange={(e) =>
                 setPasswordForm({
@@ -130,71 +129,71 @@ export const Profile = () => {
                 })
               }
             />
-          </label>
-          <br />
-          {passwordError && (
-            <p style={{ fontWeight: "bold", color: "red" }}>
-              {passwordError.message}
-            </p>
-          )}
-          {passwordError?.errors &&
-            passwordError.errors.map((err, index) => (
-              <p key={index} style={{ color: "red" }}>
-                {err.msg}
-              </p>
-            ))}
-          {passwordSuccess && (
-            <div style={{ color: "green" }}>Password updated successfully!</div>
-          )}
-          <button type="submit" disabled={passwordLoading}>
-            {passwordLoading ? "Updating..." : "Update Password"}
-          </button>
+            {passwordError && (
+              <p className="text-text-error">{passwordError.message}</p>
+            )}
+            {passwordError?.errors &&
+              passwordError.errors.map((err, index) => (
+                <p key={index} className="text-text-error">
+                  {err.msg}
+                </p>
+              ))}
+            {passwordSuccess && (
+              <div className="text-text-success">
+                Password updated successfully!
+              </div>
+            )}
+            <Button className="w-full" type="submit" loading={passwordLoading}>
+              Update Password
+            </Button>
+          </fieldset>
         </form>
       </section>
 
-      <section>
-        <h2 className="text-xl font-semibold">Change Email</h2>
+      <Divider className="mt-6" />
+      <section className="mt-6">
         <form onSubmit={handleEmailChange}>
-          <p>Current Email: {auth.user?.email}</p>
-          <label>
-            New Email:
-            <input
+          <fieldset>
+            <legend className="mb-2 text-xl font-semibold">Change Email</legend>
+            <p className="mb-2 text-base font-bold">
+              Current Email: {auth.user?.email}
+            </p>
+            <FormInput
               type="email"
+              label="New Email"
+              className="mb-2"
               value={emailForm.newEmail}
               onChange={(e) =>
                 setEmailForm({ ...emailForm, newEmail: e.target.value })
               }
             />
-          </label>
-          <br />
-          <label>
-            Password:
-            <input
+            <FormInput
               type="password"
+              label="Password"
+              className="mb-2"
               value={emailForm.password}
               onChange={(e) =>
                 setEmailForm({ ...emailForm, password: e.target.value })
               }
             />
-          </label>
-          <br />
-          {emailError && (
-            <p style={{ fontWeight: "bold", color: "red" }}>
-              {emailError.message}
-            </p>
-          )}
-          {emailError?.errors &&
-            emailError.errors.map((err, index) => (
-              <p key={index} style={{ color: "red" }}>
-                {err.msg}
-              </p>
-            ))}
-          {emailSuccess && (
-            <div style={{ color: "green" }}>Email updated successfully!</div>
-          )}
-          <button type="submit" disabled={emailLoading}>
-            {emailLoading ? "Updating..." : "Update Email"}
-          </button>
+            {emailError && (
+              <p className="text-text-error">{emailError.message}</p>
+            )}
+            {emailError?.errors &&
+              emailError.errors.map((err, index) => (
+                <p key={index} className="text-text-error">
+                  {err.msg}
+                </p>
+              ))}
+            {emailSuccess && (
+              <div className="text-text-success">
+                Email updated successfully!
+              </div>
+            )}
+            <Button type="submit" className="w-full" loading={emailLoading}>
+              Update Email
+            </Button>
+          </fieldset>
         </form>
       </section>
     </PageCard>

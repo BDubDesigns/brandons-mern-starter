@@ -23,7 +23,9 @@ export const Dashboard = () => {
         <p className="mb-2 text-xl">Your email: {auth.user.email}</p>
       </div>
       <div>
-        <Button onClick={handleLogout}>Logout</Button>
+        <Button className="w-full" onClick={handleLogout}>
+          Logout
+        </Button>
       </div>
     </PageCard>
   );

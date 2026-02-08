@@ -106,7 +106,7 @@ export const Register = () => {
               </p>
             ))}
           <div className="flex justify-center pt-2 pb-4">
-            <Button type="submit" loading={auth.loading}>
+            <Button type="submit" className="w-full" loading={auth.loading}>
               Register
             </Button>
           </div>

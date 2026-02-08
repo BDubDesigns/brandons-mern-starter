@@ -3,7 +3,7 @@
 
 @theme {
   /* Page background */
-  --color-background: light-dark(#ffffff, #0a0a0a);
+  --color-background: light-dark(#ffffff, #171717);
 
   /* Elevated surfaces (header, cards, modals) */
   --color-surface: light-dark(#e4e4e7, #27272a);
