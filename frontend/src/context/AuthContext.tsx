@@ -23,7 +23,7 @@ const transformUser = (user: { _id: string; name: string; email: string }) => {
 };
 
 // Define an interface for the error state to include optional array of errors
-interface ValidationError {
+export interface ValidationError {
   type: string;
   msg: string;
   path: string;
