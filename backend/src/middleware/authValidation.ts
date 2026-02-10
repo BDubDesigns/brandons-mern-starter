@@ -1,11 +1,12 @@
 import { body, validationResult } from "express-validator";
 import type { Request, Response, NextFunction } from "express";
+import User from "../models/User.js";
 
 // Middleware to handle validation errors from express-validator
 export const handleValidationErrors = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -25,7 +26,16 @@ export const validateRegister = [
     .trim()
     .isLength({ min: 2 })
     .withMessage("Name must be at least 2 characters"),
-  body("email").isEmail().withMessage("Invalid email format"),
+  body("email")
+    .isEmail()
+    .withMessage("Invalid email format")
+    .custom(async (email) => {
+      // Check if the email already exists in the database
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        throw new Error("Email already in use");
+      }
+    }),
   body("password")
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters")

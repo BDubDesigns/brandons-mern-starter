@@ -3,6 +3,7 @@ import { useId } from "react";
 // Extend standard HTML props to inherit everything (onBlur, name, placeholder, etc.)
 interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string; // Optional label prop for accessibility
+  errors?: string[] | undefined; // Array of error message strings for the input field
 }
 
 // In React 19, ref is passed as a regular prop, so we can use it directly
@@ -11,6 +12,7 @@ export const FormInput = ({
   className = "",
   label,
   id,
+  errors,
   ...props
 }: FormInputProps) => {
   const uniqueId = useId(); // Generate a unique ID for accessibility if no id prop is provided
@@ -28,6 +30,13 @@ export const FormInput = ({
         // Spread remaining props (value, onChange, ref, etc.)
         {...props}
       />
+      {errors && errors.length > 0 && (
+        <ul className="text-text-error mt-1">
+          {errors.map((errorMsg, index) => (
+            <li key={index}>{errorMsg}</li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

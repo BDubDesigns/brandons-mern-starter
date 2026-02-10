@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext"; // Import the useAuth hook to 
 import { FormInput } from "../components/FormInput";
 import { Button } from "../components/Button";
 import { PageCard } from "../components/PageCard";
+import { getFieldErrors } from "../utils/getFieldErrors";
 
 export const Register = () => {
   const [name, setName] = useState("");
@@ -57,6 +58,11 @@ export const Register = () => {
 
   return (
     <PageCard title="Register Page" subtitle="Create a new account.">
+      {validationError && (
+        <p className="text-text-error" style={{ fontWeight: "bold" }}>
+          {validationError}
+        </p>
+      )}
       <form onSubmit={handleRegister}>
         <fieldset>
           <legend className="pb-4 text-2xl font-semibold">
@@ -65,6 +71,7 @@ export const Register = () => {
           <FormInput
             type="text"
             label="Name"
+            errors={getFieldErrors("name", auth.error?.errors)}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -73,6 +80,7 @@ export const Register = () => {
           <FormInput
             type="email"
             label="Email"
+            errors={getFieldErrors("email", auth.error?.errors)}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -81,6 +89,7 @@ export const Register = () => {
           <FormInput
             type="password"
             label="Password"
+            errors={getFieldErrors("password", auth.error?.errors)}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -89,6 +98,7 @@ export const Register = () => {
           <FormInput
             type="password"
             label="Confirm Password"
+            errors={getFieldErrors("confirmPassword", auth.error?.errors)}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
@@ -99,12 +109,7 @@ export const Register = () => {
               {auth.error.message}
             </p>
           )}
-          {auth.error?.errors &&
-            auth.error.errors.map((err, index) => (
-              <p key={index} className="text-text-error">
-                {err.msg}
-              </p>
-            ))}
+
           <div className="flex justify-center pt-2 pb-4">
             <Button type="submit" className="w-full" loading={auth.loading}>
               Register

@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext"; // Import the useAuth hook to 
 import { Button } from "../components/Button";
 import { FormInput } from "../components/FormInput";
 import { PageCard } from "../components/PageCard";
+import { getFieldErrors } from "../utils/getFieldErrors";
 
 export const Login = () => {
   // Local state for form inputs
@@ -44,7 +45,6 @@ export const Login = () => {
     console.log("redirecting");
     return <div>Redirecting...</div>;
   }
-
   return (
     <PageCard title="Login Page" subtitle="Enter your credentials to log in.">
       <form onSubmit={handleLogin}>
@@ -57,6 +57,7 @@ export const Login = () => {
             type="email"
             name="email"
             label="Email"
+            errors={getFieldErrors("email", auth.error?.errors)}
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -66,6 +67,7 @@ export const Login = () => {
             type="password"
             name="password"
             label="Password"
+            errors={getFieldErrors("password", auth.error?.errors)}
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
