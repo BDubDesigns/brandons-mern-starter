@@ -59,9 +59,7 @@ export const Register = () => {
   return (
     <PageCard title="Register Page" subtitle="Create a new account.">
       {validationError && (
-        <p className="text-text-error" style={{ fontWeight: "bold" }}>
-          {validationError}
-        </p>
+        <p className="text-text-error font-bold">{validationError}</p>
       )}
       <form onSubmit={handleRegister}>
         <fieldset>
@@ -76,7 +74,6 @@ export const Register = () => {
             onChange={(e) => setName(e.target.value)}
             required
           />
-          <br />
           <FormInput
             type="email"
             label="Email"
@@ -85,7 +82,6 @@ export const Register = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <br />
           <FormInput
             type="password"
             label="Password"
@@ -94,7 +90,6 @@ export const Register = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <br />
           <FormInput
             type="password"
             label="Confirm Password"
@@ -103,13 +98,9 @@ export const Register = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
-          <br />
-          {auth.error && (
-            <p className="text-text-error" style={{ fontWeight: "bold" }}>
-              {auth.error.message}
-            </p>
+          {auth.error && !auth.error.errors && (
+            <p className="text-text-error font-bold">{auth.error.message}</p>
           )}
-
           <div className="flex justify-center pt-2 pb-4">
             <Button type="submit" className="w-full" loading={auth.loading}>
               Register

@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth, ValidationError } from "../context/AuthContext";
 import { PageCard } from "../components/PageCard";
 import { FormInput } from "../components/FormInput";
 import { Button } from "../components/Button";
 import { Divider } from "../components/Divider";
+import { getFieldErrors } from "../utils/getFieldErrors";
 
 // Define interface for form error states
 interface FormError {
   message: string;
-  errors?: Array<{ msg: string; path: string }>;
+  errors?: ValidationError[]; // we can have both a general message and field-specific errors, so we include both in the FormError interface
 }
 
 export const Profile = () => {
@@ -96,7 +97,8 @@ export const Profile = () => {
             <FormInput
               type="password"
               label="Current Password"
-              className="mb-2"
+              errors={getFieldErrors("currentPassword", passwordError?.errors)}
+              className=""
               value={passwordForm.currentPassword}
               onChange={(e) =>
                 setPasswordForm({
@@ -108,7 +110,8 @@ export const Profile = () => {
             <FormInput
               type="password"
               label="New Password"
-              className="mb-2"
+              errors={getFieldErrors("newPassword", passwordError?.errors)}
+              className=""
               value={passwordForm.newPassword}
               onChange={(e) =>
                 setPasswordForm({
@@ -120,7 +123,7 @@ export const Profile = () => {
             <FormInput
               type="password"
               label="Confirm New Password"
-              className="mb-2"
+              className=""
               value={passwordForm.confirmNewPassword}
               onChange={(e) =>
                 setPasswordForm({
@@ -129,21 +132,21 @@ export const Profile = () => {
                 })
               }
             />
-            {passwordError && (
-              <p className="text-text-error">{passwordError.message}</p>
-            )}
-            {passwordError?.errors &&
-              passwordError.errors.map((err, index) => (
-                <p key={index} className="text-text-error">
-                  {err.msg}
-                </p>
-              ))}
+            {passwordError &&
+              !passwordError.errors && ( // only show the generic error message when no field-specific errors
+                <div className="text-text-error">{passwordError.message}</div>
+              )}
+
             {passwordSuccess && (
               <div className="text-text-success">
                 Password updated successfully!
               </div>
             )}
-            <Button className="w-full" type="submit" loading={passwordLoading}>
+            <Button
+              className="mt-2 w-full"
+              type="submit"
+              loading={passwordLoading}
+            >
               Update Password
             </Button>
           </fieldset>
@@ -162,6 +165,7 @@ export const Profile = () => {
               type="email"
               label="New Email"
               className="mb-2"
+              errors={getFieldErrors("newEmail", emailError?.errors)}
               value={emailForm.newEmail}
               onChange={(e) =>
                 setEmailForm({ ...emailForm, newEmail: e.target.value })
@@ -171,26 +175,27 @@ export const Profile = () => {
               type="password"
               label="Password"
               className="mb-2"
+              errors={getFieldErrors("password", emailError?.errors)}
               value={emailForm.password}
               onChange={(e) =>
                 setEmailForm({ ...emailForm, password: e.target.value })
               }
             />
-            {emailError && (
-              <p className="text-text-error">{emailError.message}</p>
-            )}
-            {emailError?.errors &&
-              emailError.errors.map((err, index) => (
-                <p key={index} className="text-text-error">
-                  {err.msg}
-                </p>
-              ))}
+            {emailError &&
+              !emailError.errors && ( // only show the generic error message when no field-specific errors
+                <div className="text-text-error">{emailError.message}</div>
+              )}
+
             {emailSuccess && (
               <div className="text-text-success">
                 Email updated successfully!
               </div>
             )}
-            <Button type="submit" className="w-full" loading={emailLoading}>
+            <Button
+              type="submit"
+              className="mt-2 w-full"
+              loading={emailLoading}
+            >
               Update Email
             </Button>
           </fieldset>

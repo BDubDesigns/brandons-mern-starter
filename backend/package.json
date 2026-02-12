@@ -32,6 +32,7 @@
     "@types/express-validator": "^2.20.33",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.0.6",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }

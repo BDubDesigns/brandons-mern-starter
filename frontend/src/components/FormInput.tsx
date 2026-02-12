@@ -31,7 +31,7 @@ export const FormInput = ({
         {...props}
       />
       {errors && errors.length > 0 && (
-        <ul className="text-text-error mt-1">
+        <ul className="text-text-error mb-4">
           {errors.map((errorMsg, index) => (
             <li key={index}>{errorMsg}</li>
           ))}

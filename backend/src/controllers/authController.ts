@@ -8,19 +8,25 @@ import {
   formatUserWithoutPassword,
   setRefreshTokenCookie,
 } from "../utils/tokenUtils.js";
+import { createFieldError } from "../utils/errorFormatter.js";
 
 // register user controller
 export const registerUser = async (req: Request, res: Response) => {
   // get name, email, and both password fields from the request body
   const { name, email, password } = req.body;
 
+  // define an array to hold any validation errors that occur during the process, which we can return in the response if needed
+  const errors = [];
   // validate that all required fields are provided
-  if (!name || !email || !password) {
-    res.status(400).json({ message: "All fields are required" });
+  if (!name) errors.push(createFieldError("name", "Name is required"));
+  if (!email) errors.push(createFieldError("email", "Email is required"));
+  if (!password)
+    errors.push(createFieldError("password", "Password is required"));
+
+  if (errors.length > 0) {
+    res.status(400).json({ message: "Validation errors", errors });
     return;
   }
-
-  // Email uniqueness is enforced by the User model's unique index; duplicate emails will be caught by error middleware
 
   // create and save the new user to the database using the User model, which will trigger the pre-save middleware to hash the password
   const newUser = await User.create({ name, email, password });
@@ -28,7 +34,7 @@ export const registerUser = async (req: Request, res: Response) => {
   // generate JWT and refresh token for the new user using the utility function
   const { token, refreshToken } = generateTokens(
     newUser._id.toString(),
-    newUser.email
+    newUser.email,
   );
 
   // set the refresh token as an HTTP-only cookie with a 7 day expiration
@@ -50,8 +56,13 @@ export const loginUser = async (req: Request, res: Response) => {
   const genericErrorMessage = "Invalid email or password";
 
   // validate that both email and password are provided
-  if (!email || !password) {
-    res.status(400).json({ message: "Email and password are required" });
+  const errors = [];
+  if (!email) errors.push(createFieldError("email", "Email is required"));
+  if (!password)
+    errors.push(createFieldError("password", "Password is required"));
+
+  if (errors.length > 0) {
+    res.status(400).json({ message: "Validation errors", errors });
     return;
   }
 
@@ -76,7 +87,7 @@ export const loginUser = async (req: Request, res: Response) => {
   // generate JWT and refresh token for the authenticated user using the utility function
   const { token, refreshToken } = generateTokens(
     user._id.toString(),
-    user.email
+    user.email,
   );
 
   // set the refresh token as an HTTP-only cookie with a 7 day expiration
@@ -162,12 +173,17 @@ export const updatePassword = async (req: Request, res: Response) => {
   // get the current password and new password from the request body
   const { currentPassword, newPassword } = req.body;
 
-  // validate that both current password and new password are provided
-  if (!currentPassword || !newPassword) {
-    res
-      .status(400)
-      .json({ message: "Current password and new password are required" });
-    return;
+  // define an array to hold any validation errors that occur during the process, which we can return in the response if needed
+  const errors = [];
+
+  // validate that current password and new password are provided
+  if (!currentPassword) {
+    errors.push(
+      createFieldError("currentPassword", "Current password is required"),
+    );
+  }
+  if (!newPassword) {
+    errors.push(createFieldError("newPassword", "New password is required"));
   }
 
   // get the user from the database by their ID
@@ -182,9 +198,16 @@ export const updatePassword = async (req: Request, res: Response) => {
   // compare the provided current password with the hashed password stored in the database using the comparePassword method in the User model
   const isCurrentPasswordValid = await user.comparePassword(currentPassword);
 
-  // if the current password is invalid, return 401 Unauthorized
+  // if the current password is invalid, return 400 Bad Request
   if (!isCurrentPasswordValid) {
-    res.status(401).json({ message: "Current password is incorrect" });
+    errors.push(
+      createFieldError("currentPassword", "Current password is incorrect"),
+    );
+  }
+
+  // if there are any validation errors, return 400 Bad Request with the errors
+  if (errors.length > 0) {
+    res.status(400).json({ message: "Validation errors", errors });
     return;
   }
 
@@ -203,13 +226,16 @@ export const updateEmail = async (req: Request, res: Response) => {
 
   // validate input
   const { newEmail, password } = req.body;
+
+  // define an array to hold any validation errors that occur during the process, which we can return in the response if needed
+  const errors = [];
+
+  // validate that new email and password are provided
   if (!newEmail) {
-    res.status(400).json({ message: "New email is required" });
-    return;
+    errors.push(createFieldError("newEmail", "New email is required"));
   }
   if (!password) {
-    res.status(400).json({ message: "Password is required" });
-    return;
+    errors.push(createFieldError("password", "Password is required"));
   }
 
   // find user
@@ -224,15 +250,22 @@ export const updateEmail = async (req: Request, res: Response) => {
   // verify password
   const isPasswordValid = await user.comparePassword(password);
   if (!isPasswordValid) {
-    res.status(401).json({ message: "Password is incorrect" });
-    return;
+    errors.push(createFieldError("password", "Password is incorrect"));
   }
 
   // if the new email is the same as the current email, return 400 Bad Request
   if (user.email === newEmail) {
-    res
-      .status(400)
-      .json({ message: "New email must be different from current email" });
+    errors.push(
+      createFieldError(
+        "newEmail",
+        "New email must be different from current email",
+      ),
+    );
+  }
+
+  // if there are any validation errors, return 400 Bad Request with the errors
+  if (errors.length > 0) {
+    res.status(400).json({ message: "Validation errors", errors });
     return;
   }
 
@@ -243,7 +276,7 @@ export const updateEmail = async (req: Request, res: Response) => {
   // reauthenticate user by generating new tokens
   const { token, refreshToken } = generateTokens(
     user._id.toString(),
-    user.email
+    user.email,
   );
 
   // set the new refresh token as an HTTP-only cookie with a 7 day expiration
