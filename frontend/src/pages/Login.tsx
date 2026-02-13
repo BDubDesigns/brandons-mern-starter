@@ -49,7 +49,7 @@ export const Login = () => {
     <PageCard title="Login Page" subtitle="Enter your credentials to log in.">
       <form onSubmit={handleLogin}>
         <fieldset>
-          <legend className="pb-4 text-2xl font-semibold">
+          <legend className="mb-4 text-2xl font-semibold">
             Enter your credentials
           </legend>
 
@@ -57,22 +57,22 @@ export const Login = () => {
             type="email"
             name="email"
             label="Email"
+            containerClassName="mb-2"
             errors={getFieldErrors("email", auth.error?.errors)}
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <br />
           <FormInput
             type="password"
             name="password"
             label="Password"
+            containerClassName="mb-2"
             errors={getFieldErrors("password", auth.error?.errors)}
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <br />
           {auth.error && (
             <p className="text-text-error">{auth.error.message}</p>
           )}
@@ -82,7 +82,7 @@ export const Login = () => {
                 {err.msg}
               </p>
             ))}
-          <div className="flex justify-center pb-4">
+          <div className="mt-2 flex justify-center pb-2">
             <Button className="w-full" type="submit" loading={auth.loading}>
               Login
             </Button>

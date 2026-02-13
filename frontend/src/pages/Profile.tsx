@@ -98,7 +98,7 @@ export const Profile = () => {
               type="password"
               label="Current Password"
               errors={getFieldErrors("currentPassword", passwordError?.errors)}
-              className=""
+              containerClassName="mb-2"
               value={passwordForm.currentPassword}
               onChange={(e) =>
                 setPasswordForm({
@@ -111,7 +111,7 @@ export const Profile = () => {
               type="password"
               label="New Password"
               errors={getFieldErrors("newPassword", passwordError?.errors)}
-              className=""
+              containerClassName="mb-2"
               value={passwordForm.newPassword}
               onChange={(e) =>
                 setPasswordForm({
@@ -123,7 +123,7 @@ export const Profile = () => {
             <FormInput
               type="password"
               label="Confirm New Password"
-              className=""
+              containerClassName="mb-2"
               value={passwordForm.confirmNewPassword}
               onChange={(e) =>
                 setPasswordForm({
@@ -164,7 +164,7 @@ export const Profile = () => {
             <FormInput
               type="email"
               label="New Email"
-              className="mb-2"
+              containerClassName="mb-2"
               errors={getFieldErrors("newEmail", emailError?.errors)}
               value={emailForm.newEmail}
               onChange={(e) =>
@@ -174,7 +174,7 @@ export const Profile = () => {
             <FormInput
               type="password"
               label="Password"
-              className="mb-2"
+              containerClassName="mb-2"
               errors={getFieldErrors("password", emailError?.errors)}
               value={emailForm.password}
               onChange={(e) =>
