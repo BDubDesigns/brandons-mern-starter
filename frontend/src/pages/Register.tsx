@@ -14,21 +14,21 @@ export const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
   // call useAuth once and save the returned context value to avoid multiple calls and potential performance issues
-  const auth = useAuth();
+  const { token, loading, error, register, clearError } = useAuth();
   // useNavigate hook from react-router to programmatically navigate after successful registration
   const navigate = useNavigate();
 
-  // useEffect to redirect to dashboard after successful registration (when auth.token changes from null to a valid token)
+  // useEffect to redirect to dashboard after successful registration (when token changes from null to a valid token)
   useEffect(() => {
-    if (auth.token && !auth.loading) {
+    if (token && !loading) {
       navigate("/dashboard");
     }
-  }, [auth.token, auth.loading, navigate]); // we include navigate in the dependency array to avoid potential issues with stale closures, even though navigate is stable from useNavigate
+  }, [token, loading, navigate]); // we include navigate in the dependency array to avoid potential issues with stale closures, even though navigate is stable from useNavigate
 
   // useEffect to clear errors on mount
   useEffect(() => {
-    auth.clearError();
-  }, []);
+    clearError();
+  }, [clearError]);
 
   // Handle form submission for registration
   const handleRegister = async (e: React.FormEvent) => {
@@ -40,18 +40,18 @@ export const Register = () => {
       return;
     }
     console.log("registering");
-    await auth.register(name, email, password); // Call the register function from AuthContext with the form inputs
+    await register(name, email, password); // Call the register function from AuthContext with the form inputs
   };
 
   // If loading, show a loading indicator
-  if (auth.loading) {
+  if (loading) {
     console.log("loading");
     return <div>Loading...</div>;
   }
 
   // So that we don't show the registration form if the user is already logged in, we check
-  //  if auth.token exists and show a redirecting message. useEffect above will handle the actual redirect.
-  if (auth.token) {
+  //  if token exists and show a redirecting message. useEffect above will handle the actual redirect.
+  if (token) {
     console.log("redirecting");
     return <div>Redirecting...</div>;
   }
@@ -69,7 +69,7 @@ export const Register = () => {
           <FormInput
             type="text"
             label="Name"
-            errors={getFieldErrors("name", auth.error?.errors)}
+            errors={getFieldErrors("name", error?.errors)}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -77,7 +77,7 @@ export const Register = () => {
           <FormInput
             type="email"
             label="Email"
-            errors={getFieldErrors("email", auth.error?.errors)}
+            errors={getFieldErrors("email", error?.errors)}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -85,7 +85,7 @@ export const Register = () => {
           <FormInput
             type="password"
             label="Password"
-            errors={getFieldErrors("password", auth.error?.errors)}
+            errors={getFieldErrors("password", error?.errors)}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -93,16 +93,16 @@ export const Register = () => {
           <FormInput
             type="password"
             label="Confirm Password"
-            errors={getFieldErrors("confirmPassword", auth.error?.errors)}
+            errors={getFieldErrors("confirmPassword", error?.errors)}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
-          {auth.error && !auth.error.errors && (
-            <p className="text-text-error font-bold">{auth.error.message}</p>
+          {error && !error.errors && (
+            <p className="text-text-error font-bold">{error.message}</p>
           )}
           <div className="flex justify-center pt-2 pb-4">
-            <Button type="submit" className="w-full" loading={auth.loading}>
+            <Button type="submit" className="w-full" loading={loading}>
               Register
             </Button>
           </div>

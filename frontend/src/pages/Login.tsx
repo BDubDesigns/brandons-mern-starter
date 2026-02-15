@@ -12,36 +12,36 @@ export const Login = () => {
   const [password, setPassword] = useState("");
 
   // call useAuth once and save the returned context value to avoid multiple calls and potential performance issues
-  const auth = useAuth();
+  const { token, loading, error, login, clearError } = useAuth();
   // useNavigate hook from react-router to programmatically navigate after successful login
   const navigate = useNavigate();
 
-  // useEffect to redirect to dashboard after successful login (when auth.token changes from null to a valid token)
-  // We check for auth.token instead of auth.user because the token is what actually indicates whether the user is authenticated, and it will be set immediately upon successful login, while the user data may take a moment to fetch and update in the context
+  // useEffect to redirect to dashboard after successful login (when token changes from null to a valid token)
+  // We check for token instead of user because the token is what actually indicates whether the user is authenticated, and it will be set immediately upon successful login, while the user data may take a moment to fetch and update in the context
   useEffect(() => {
-    if (auth.token && !auth.loading) {
+    if (token && !loading) {
       navigate("/dashboard");
     }
-  }, [auth.token, auth.loading, navigate]); // we include navigate in the dependency array to avoid potential issues with stale closures, even though navigate is stable from useNavigate
+  }, [token, loading, navigate]); // we include navigate in the dependency array to avoid potential issues with stale closures, even though navigate is stable from useNavigate
 
   // useEffect to clear errors on mount
   useEffect(() => {
-    auth.clearError();
-  }, []);
+    clearError();
+  }, [clearError]); // we include clearError in the dependency array to avoid potential issues with stale closures, even though clearError is stable from useCallback
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent the default form submission behavior which would cause a page reload
-    await auth.login(email, password); // Call the login function from AuthContext with the email and password from the form inputs
+    await login(email, password); // Call the login function from AuthContext with the email and password from the form inputs
   };
 
   // Show loading while checking if user is already logged in
-  if (auth.loading) {
+  if (loading) {
     console.log("loading");
     return <div>Loading...</div>;
   }
 
   // If user is already logged in, show redirect message
-  if (auth.token) {
+  if (token) {
     console.log("redirecting");
     return <div>Redirecting...</div>;
   }
@@ -58,7 +58,7 @@ export const Login = () => {
             name="email"
             label="Email"
             containerClassName="mb-2"
-            errors={getFieldErrors("email", auth.error?.errors)}
+            errors={getFieldErrors("email", error?.errors)}
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -68,22 +68,20 @@ export const Login = () => {
             name="password"
             label="Password"
             containerClassName="mb-2"
-            errors={getFieldErrors("password", auth.error?.errors)}
+            errors={getFieldErrors("password", error?.errors)}
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {auth.error && (
-            <p className="text-text-error">{auth.error.message}</p>
-          )}
-          {auth.error?.errors &&
-            auth.error.errors.map((err, index) => (
+          {error && <p className="text-text-error">{error.message}</p>}
+          {error?.errors &&
+            error.errors.map((err, index) => (
               <p key={index} className="text-text-error">
                 {err.msg}
               </p>
             ))}
           <div className="mt-2 flex justify-center pb-2">
-            <Button className="w-full" type="submit" loading={auth.loading}>
+            <Button className="w-full" type="submit" loading={loading}>
               Login
             </Button>
           </div>

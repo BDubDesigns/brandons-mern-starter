@@ -228,10 +228,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // ClearError: Resets the error state to null
-  const clearError = () => {
+  // ClearError: Resets the error state to null.
+  // We use useCallback to memoize this function so that it doesn't cause unnecessary re-renders in components that depend on it, since it will be stable across renders.
+  const clearError = useCallback(() => {
     setError(null);
-  };
+  }, []);
 
   // Whenever the token changes (e.g. on login), fetch the current user data to hydrate the app with user info
   useEffect(() => {
