@@ -9,7 +9,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 // import auth middleware to protect routes
-import { verifyJWT } from "./middleware/authMiddleware.js";
+// import { verifyJWT } from "./middleware/authMiddleware.js";
 
 // import error middleware to handle errors in a centralized way
 import errorMiddleware from "./middleware/errorMiddleware.js";
@@ -29,7 +29,7 @@ app.use(
   cors({
     origin: "http://localhost:3000", // Frontend origin that's allowed to send credentials
     credentials: true, // Allow cookies/credentials from that origin
-  })
+  }),
 );
 app.use(express.json());
 // use cookie parser middleware to parse cookies in incoming requests, needed for refresh token handling

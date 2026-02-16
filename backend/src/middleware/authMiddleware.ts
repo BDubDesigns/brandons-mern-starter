@@ -1,20 +1,12 @@
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
-
-// extend the Express Request interface to include a user property for TypeScript type safety
-declare global {
-  namespace Express {
-    interface Request {
-      user?: { userId: string; email: string };
-    }
-  }
-}
+import type { JWTPayload } from "../types/index.js";
 
 // authMiddleware function to verify JWT tokens and protect routes
 export const verifyJWT = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   // get the token from the Authorization header
   const authHeader = req.headers.authorization;
@@ -57,10 +49,11 @@ export const verifyJWT = (
       return;
     }
 
-    req.user = decoded as { userId: string; email: string };
+    req.user = decoded as JWTPayload; // attach the decoded payload to req.user for use in protected routes
     next();
   } catch (error) {
     // if the token is invalid or expired, return 401 Unauthorized
+    console.error("JWT verification failed:", error);
     res.status(401).json({ message: "Invalid or expired token" });
     return;
   }

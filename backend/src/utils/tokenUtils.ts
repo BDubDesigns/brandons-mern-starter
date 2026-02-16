@@ -5,10 +5,12 @@ import type { IUser } from "../models/User.js";
 // import Response type from Express for type safety in the setRefreshTokenCookie function
 import type { Response } from "express";
 
+import type { JWTPayload, UserResponse } from "../types/index.js";
+
 // Helper function to generate a JWT and refresh token for a user, given their user ID and email
 export const generateTokens = (
   userId: string,
-  email: string
+  email: string,
 ): { token: string; refreshToken: string } => {
   // generate jwt token with user ID and email as payload, signed with the secret from .env
   const secret = process.env.JWT_SECRET;
@@ -20,7 +22,7 @@ export const generateTokens = (
   }
 
   // create the payload with user ID and email
-  const payload = { userId, email };
+  const payload: JWTPayload = { userId, email };
 
   // generate the jwt with a 15min expiration
   const token = jwt.sign(payload, secret, { expiresIn: "15m" });
@@ -42,16 +44,16 @@ export const generateAccessToken = (userId: string, email: string): string => {
     throw new Error("Server configuration error: missing JWT_SECRET");
   }
 
-  const payload = { userId, email };
+  const payload: JWTPayload = { userId, email };
   const token = jwt.sign(payload, secret, { expiresIn: "15m" });
   return token;
 };
 
 // utility to format the user without password
-export const formatUserWithoutPassword = (user: IUser) => {
+export const formatUserWithoutPassword = (user: IUser): UserResponse => {
   // build user object without password
   const userWithoutPassword = {
-    _id: user._id,
+    _id: user._id.toString(), // convert ObjectId to string for consistency in API responses
     name: user.name,
     email: user.email,
     isVerified: user.isVerified,
