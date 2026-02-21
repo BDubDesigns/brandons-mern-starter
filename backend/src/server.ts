@@ -8,9 +8,6 @@ import cors from "cors";
 //import cookie parser to parse cookies in incoming requests, needed for refresh token handling
 import cookieParser from "cookie-parser";
 
-// import auth middleware to protect routes
-// import { verifyJWT } from "./middleware/authMiddleware.js";
-
 // import error middleware to handle errors in a centralized way
 import errorMiddleware from "./middleware/errorMiddleware.js";
 
