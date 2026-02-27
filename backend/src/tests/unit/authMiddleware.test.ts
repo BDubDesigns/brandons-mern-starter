@@ -57,9 +57,17 @@ describe("verifyJWT()", () => {
     });
   });
 
-  describe("when an invalid token is provided", () => {
-    let req: ReturnType<typeof createMockReq>;
-    let res: ReturnType<typeof createMockRes>;
-    let next: NextFunction;
+  describe("when the authorization header is missing or invalid", () => {
+    it("should return 401 Unauthorized when the authorization header is missing", () => {
+      const req = createMockReq({ headers: {} });
+      const res = createMockRes();
+      const next = vi.fn() as NextFunction;
+      verifyJWT(req, res, next);
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.status(401).json).toHaveBeenCalledWith({
+        message: "Missing or invalid auth header",
+      });
+      expect(next).not.toHaveBeenCalled();
+    });
   });
 });
