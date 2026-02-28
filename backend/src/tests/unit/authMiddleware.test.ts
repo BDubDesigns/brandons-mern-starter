@@ -4,11 +4,12 @@ import { describe, vi, beforeEach, afterEach, it, expect } from "vitest";
 import type { NextFunction } from "express";
 // import the verifyJWT middleware function to be tested
 import { verifyJWT } from "../../middleware/authMiddleware.js";
+// import jwt for token creation in tests
+import jwt from "jsonwebtoken";
 // import generateAccessToken utility function to create a valid JWT token for testing
 import { generateAccessToken } from "../../utils/tokenUtils.js";
 // import the createMockRes helper function to create a mock response object for testing
 import { createMockRes, createMockReq } from "../helpers/factories.js";
-
 // runs before each test to set up the environment variable for JWT_SECRET
 beforeEach(() => {
   vi.stubEnv("JWT_SECRET", "test-secret-123");
@@ -58,7 +59,7 @@ describe("verifyJWT()", () => {
   });
 
   describe("when the authorization header is missing or invalid", () => {
-    it("should return 401 Unauthorized when the authorization header is missing", () => {
+    it("should return 401 Unauthorized", () => {
       const req = createMockReq({ headers: {} });
       const res = createMockRes();
       const next = vi.fn() as NextFunction;
@@ -66,6 +67,58 @@ describe("verifyJWT()", () => {
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.status(401).json).toHaveBeenCalledWith({
         message: "Missing or invalid auth header",
+      });
+      expect(next).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("when the JWT_SECRET is not set", () => {
+    it("should return 500 server error", () => {
+      const token = generateAccessToken("user123", "test@example.com");
+      vi.stubEnv("JWT_SECRET", ""); // Unset the JWT_SECRET environment variable
+      const req = createMockReq({
+        headers: { authorization: `Bearer ${token}` },
+      });
+      const res = createMockRes();
+      const next = vi.fn() as NextFunction;
+      verifyJWT(req, res, next);
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.status(500).json).toHaveBeenCalledWith({
+        message: "Server error",
+      });
+      expect(next).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("when the token is invalid or expired", () => {
+    it("should return 401 Unauthorized", () => {
+      const req = createMockReq({
+        headers: { authorization: "Bearer invalid-token" },
+      });
+      const res = createMockRes();
+      const next = vi.fn() as NextFunction;
+      verifyJWT(req, res, next);
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.status(401).json).toHaveBeenCalledWith({
+        message: "Invalid or expired token",
+      });
+      expect(next).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("when the token payload is missing required properties", () => {
+    it("should return 401 Unauthorized", () => {
+      // Create a token with an invalid payload (missing userId and email)
+      const invalidPayloadToken = jwt.sign({}, "test-secret-123");
+      const req = createMockReq({
+        headers: { authorization: `Bearer ${invalidPayloadToken}` },
+      });
+      const res = createMockRes();
+      const next = vi.fn() as NextFunction;
+      verifyJWT(req, res, next);
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.status(401).json).toHaveBeenCalledWith({
+        message: "Invalid token payload",
       });
       expect(next).not.toHaveBeenCalled();
     });
