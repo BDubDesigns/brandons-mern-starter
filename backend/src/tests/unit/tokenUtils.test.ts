@@ -4,8 +4,9 @@ import {
   generateTokens,
   generateAccessToken,
   formatUserWithoutPassword,
+  setRefreshTokenCookie,
 } from "../../utils/tokenUtils.js";
-import { createMockUser } from "../helpers/factories.js";
+import { createMockUser, createMockRes } from "../helpers/factories.js";
 
 // Define test user data for use in the tests
 const userId = "user123";
@@ -84,5 +85,52 @@ describe("formatUserWithoutPassword()", () => {
     const userSansPassword = formatUserWithoutPassword(mockedUser);
 
     expect(userSansPassword).not.toHaveProperty("password");
+  });
+});
+
+describe("setRefreshTokenCookie()", () => {
+  it("should call res.cookie with the correct name, token, and invariant options", () => {
+    const mockRes = createMockRes();
+    const refreshTokenString = "ABC123abc";
+    setRefreshTokenCookie(mockRes, refreshTokenString);
+    expect(mockRes.cookie).toHaveBeenCalledWith(
+      "refreshToken",
+      refreshTokenString,
+      expect.objectContaining({
+        httpOnly: true,
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      }),
+    );
+  });
+
+  describe("secure flag behavior", () => {
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it("should set secure to true in production", () => {
+      vi.stubEnv("NODE_ENV", "production");
+      const mockRes = createMockRes();
+      const refreshTokenString = "ABC123abc";
+      setRefreshTokenCookie(mockRes, refreshTokenString);
+      expect(mockRes.cookie).toHaveBeenCalledWith(
+        "refreshToken",
+        refreshTokenString,
+        expect.objectContaining({ secure: true }),
+      );
+    });
+
+    it("should set secure to false outside of production", () => {
+      vi.stubEnv("NODE_ENV", "development");
+      const mockRes = createMockRes();
+      const refreshTokenString = "ABC123abc";
+      setRefreshTokenCookie(mockRes, refreshTokenString);
+      expect(mockRes.cookie).toHaveBeenCalledWith(
+        "refreshToken",
+        refreshTokenString,
+        expect.objectContaining({ secure: false }),
+      );
+    });
   });
 });

@@ -18,13 +18,14 @@ export const createMockUser = (overrides?: Partial<IUser>): IUser =>
 
 // Factory function to create a mock response object for testing purposes, with optional overrides for specific fields
 export const createMockRes = (overrides?: Partial<Response>) => {
+  // Create a mock response object with the necessary methods for testing
   const jsonMock = { json: vi.fn() };
   const res = {
-    status: vi.fn().mockReturnValue(jsonMock),
+    cookie: vi.fn(), // mock the cookie method to track calls
+    status: vi.fn().mockReturnValue(jsonMock), // mock the status method to return an object with a json method
     ...overrides,
   };
   return res as Response;
-  // We have to use as unknown as Response because the mock object doesn't implement all methods of the Response interface, but we only need the methods we're testing.
 };
 
 // Factory function to create a mock request object for testing purposes, with optional overrides for specific fields

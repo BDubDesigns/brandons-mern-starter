@@ -69,7 +69,21 @@ describe("Error Middleware", () => {
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.status(500).json).toHaveBeenCalledWith({
         statusCode: 500,
-        message: "Something went wrong",
+        message: mockError.message,
+      });
+    });
+  });
+
+  describe("when the error is not an instance of Error", () => {
+    it("should return a 500 status code with the string that was thrown", () => {
+      const mockError = "Error occurred";
+      const mockReq = createMockReq();
+      const mockRes = createMockRes();
+      errorMiddleware(mockError, mockReq, mockRes, vi.fn() as NextFunction);
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.status(500).json).toHaveBeenCalledWith({
+        statusCode: 500,
+        message: mockError,
       });
     });
   });
@@ -87,7 +101,7 @@ describe("Error Middleware", () => {
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.status(500).json).toHaveBeenCalledWith({
         statusCode: 500,
-        message: "Stack trace test",
+        message: mockError.message,
         stack: mockError.stack,
       });
     });
@@ -101,7 +115,7 @@ describe("Error Middleware", () => {
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.status(500).json).toHaveBeenCalledWith({
         statusCode: 500,
-        message: "No stack trace test",
+        message: mockError.message,
       });
     });
   });
