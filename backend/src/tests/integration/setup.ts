@@ -1,6 +1,6 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import { beforeAll, afterAll, afterEach } from "vitest";
+import { beforeAll, afterAll, afterEach, vi } from "vitest";
 
 // declare mongoServer at module scope so both beforeAll and afterAll can reference the same instance
 let mongoServer: MongoMemoryServer;
@@ -9,6 +9,7 @@ let mongoServer: MongoMemoryServer;
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   await mongoose.connect(mongoServer.getUri());
+  vi.stubEnv("JWT_SECRET", "secret-123");
 });
 
 // after each test, delete every collection

@@ -45,7 +45,7 @@ export const validateRegister = [
     .withMessage("Password must contain lowercase letter")
     .matches(/[0-9]/)
     .withMessage("Password must contain digit")
-    .matches(/[!@#$%^&*]/)
+    .matches(/[!@#$%^&?*]/)
     .withMessage("Password must contain special character"),
 ];
 
