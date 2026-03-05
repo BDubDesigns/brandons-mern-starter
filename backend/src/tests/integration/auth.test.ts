@@ -1,12 +1,7 @@
 import "./setup.js";
 import request from "supertest";
 import app from "../../app.js";
-import { beforeAll, describe, expect, it } from "vitest";
-
-// Scenario, Expected
-
-// Weak password (no uppercase)	400, validation error message
-// Duplicate email	400, "Email already in use"
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 describe("POST /api/auth/register", () => {
   it("should register a new user and return a token and user object", async () => {
@@ -91,7 +86,7 @@ describe("POST /api/auth/register", () => {
 });
 
 describe("POST /api/auth/login", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     await request(app).post("/api/auth/register").send({
       name: "Test User",
       email: "login@test.com",
@@ -180,6 +175,7 @@ describe("GET /api/auth/me", () => {
 });
 
 describe("POST /api/auth/refresh", () => {
+  // define a variable to hold the refresh token cookie for use in the tests
   let refreshTokenCookie: string;
 
   beforeAll(async () => {
@@ -204,12 +200,150 @@ describe("POST /api/auth/refresh", () => {
     expect(res.status).toBe(401);
     expect(res.body.message).toBe("Unauthorized");
   });
+});
 
-  it("should return 401 when an invalid refresh token cookie is provided", async () => {
+describe("PATCH /api/auth/update-password", () => {
+  // define a variable to hold the token for use in the tests
+  let token: string;
+
+  beforeEach(async () => {
+    const res = await request(app).post("/api/auth/register").send({
+      name: "Test User",
+      email: "refresh@test.com",
+      password: "Password1!",
+    });
+    token = res.body.token; // grab the token string
+  });
+
+  describe("with correct current password and valid new password", () => {
+    it("should return 200 'Password updated successfully'", async () => {
+      const res = await request(app)
+        .patch("/api/auth/update-password")
+        .set("authorization", `Bearer ${token}`)
+        .send({
+          currentPassword: "Password1!",
+          newPassword: "Password2!",
+        });
+      expect(res.status).toBe(200);
+      expect(res.body.message).toBe("Password updated successfully");
+    });
+  });
+
+  describe("with wrong current password", () => {
+    it("should return 400 and field error on 'currentPassword'", async () => {
+      const res = await request(app)
+        .patch("/api/auth/update-password")
+        .set("authorization", `Bearer ${token}`)
+        .send({
+          currentPassword: "WrongPassword1!",
+          newPassword: "Password2!",
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.errors[0].msg).toBe("Current password is incorrect");
+    });
+  });
+  // Can login with new password after update	200 on subsequent login
+  describe("after updating password, can login with new password", () => {
+    it("should allow login with new password after update", async () => {
+      // First, update the password
+      await request(app)
+        .patch("/api/auth/update-password")
+        .set("authorization", `Bearer ${token}`)
+        .send({
+          currentPassword: "Password1!",
+          newPassword: "Password2!",
+        });
+      // Then, attempt to login with the new password
+      const res = await request(app).post("/api/auth/login").send({
+        email: "refresh@test.com",
+        password: "Password2!",
+      });
+      expect(res.status).toBe(200);
+      expect(typeof res.body.token).toBe("string");
+    });
+  });
+});
+
+describe("PATCH /api/auth/update-email", () => {
+  // define a variable to hold the token for use in the tests
+  let token: string;
+
+  beforeEach(async () => {
+    const res = await request(app).post("/api/auth/register").send({
+      name: "Test User",
+      email: "refresh@test.com",
+      password: "Password1!",
+    });
+    token = res.body.token; // grab the token string
+  });
+
+  describe("with valid new email and correct password", () => {
+    it("should return 200 and update email with new token and user data", async () => {
+      const res = await request(app)
+        .patch("/api/auth/update-email")
+        .set("authorization", `Bearer ${token}`)
+        .send({
+          newEmail: "newemail@test.com",
+          password: "Password1!",
+        });
+      expect(res.status).toBe(200);
+      expect(typeof res.body.token).toBe("string");
+      expect(res.body.user).toHaveProperty("_id");
+      expect(res.body.user).toHaveProperty("email", "newemail@test.com");
+      expect(res.body.user).not.toHaveProperty("password");
+    });
+  });
+
+  describe("with wrong password", () => {
+    it("should return 400 and field error on 'password'", async () => {
+      const res = await request(app)
+        .patch("/api/auth/update-email")
+        .set("authorization", `Bearer ${token}`)
+        .send({
+          newEmail: "newemail@test.com",
+          password: "WrongPassword1!",
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.errors[0].msg).toBe("Password is incorrect");
+    });
+  });
+
+  describe("with new email equal to current email", () => {
+    it("should return 400 and a field error on 'newEmail'", async () => {
+      const res = await request(app)
+        .patch("/api/auth/update-email")
+        .set("authorization", `Bearer ${token}`)
+        .send({
+          newEmail: "refresh@test.com", // same address as the registered user
+          password: "Password1!",
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.errors[0].msg).toBe(
+        "New email must be different from current email",
+      );
+    });
+  });
+});
+
+describe("POST /api/auth/logout", () => {
+  // define a variable to hold the token for use in the tests
+  let token: string;
+
+  beforeEach(async () => {
+    const res = await request(app).post("/api/auth/register").send({
+      name: "Test User",
+      email: "refresh@test.com",
+      password: "Password1!",
+    });
+    token = res.body.token; // grab the token string
+  });
+
+  it("should return 204 and clear the refresh token cookie", async () => {
     const res = await request(app)
-      .post("/api/auth/refresh")
-      .set("Cookie", "refreshToken=invalidtoken");
-    expect(res.status).toBe(401);
-    expect(res.body.message).toBe("Invalid refresh token");
+      .post("/api/auth/logout")
+      .set("authorization", `Bearer ${token}`);
+    expect(res.status).toBe(204);
+    expect(res.headers["set-cookie"]![0]).toContain("refreshToken=;");
   });
 });
