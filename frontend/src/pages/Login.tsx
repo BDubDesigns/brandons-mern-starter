@@ -11,23 +11,23 @@ export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // call useAuth once and save the returned context value to avoid multiple calls and potential performance issues
+  // Call useAuth once and save the returned context value to avoid multiple calls and potential performance issues
   const { token, loading, error, login, clearError } = useAuth();
-  // useNavigate hook from react-router to programmatically navigate after successful login
+  // UseNavigate hook from react-router to programmatically navigate after successful login
   const navigate = useNavigate();
 
-  // useEffect to redirect to dashboard after successful login (when token changes from null to a valid token)
+  // UseEffect to redirect to dashboard after successful login (when token changes from null to a valid token)
   // We check for token instead of user because the token is what actually indicates whether the user is authenticated, and it will be set immediately upon successful login, while the user data may take a moment to fetch and update in the context
   useEffect(() => {
     if (token && !loading) {
       navigate("/dashboard");
     }
-  }, [token, loading, navigate]); // we include navigate in the dependency array to avoid potential issues with stale closures, even though navigate is stable from useNavigate
+  }, [token, loading, navigate]); // We include navigate in the dependency array to avoid potential issues with stale closures, even though navigate is stable from useNavigate
 
   // useEffect to clear errors on mount
   useEffect(() => {
     clearError();
-  }, [clearError]); // we include clearError in the dependency array to avoid potential issues with stale closures, even though clearError is stable from useCallback
+  }, [clearError]); // We include clearError in the dependency array to avoid potential issues with stale closures, even though clearError is stable from useCallback
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent the default form submission behavior which would cause a page reload

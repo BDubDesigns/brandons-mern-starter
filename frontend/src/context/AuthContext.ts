@@ -15,9 +15,9 @@ export interface AuthContextType {
   user: { id: string; name: string; email: string } | null;
   // JWT token stored in localStorage - used for authenticated API requests
   token: string | null;
-  // loading state while fetching from backend (prevent race conditions)
+  // Loading state while fetching from backend (prevent race conditions)
   loading: boolean;
-  // error messages from failed auth operations (display to user)
+  // Error messages from failed auth operations (display to user)
   error: { message: string; errors?: Array<ValidationError> } | null;
   // Functions that components will call to interact with auth
   login: (email: string, password: string) => Promise<void>;

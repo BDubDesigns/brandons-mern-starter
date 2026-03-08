@@ -29,6 +29,17 @@ export default tseslint.config(
       "react/jsx-no-target-blank": "off",
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": "warn",
+
+      // Enforce capitalized comments with production-friendly exceptions
+      "capitalized-comments": [
+        "error",
+        "always",
+        {
+          ignorePattern: "eslint|ts-|prettier|c8|istanbul",
+          ignoreInlineComments: true,
+          ignoreConsecutiveComments: true,
+        },
+      ],
     },
   },
 );

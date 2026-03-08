@@ -5,6 +5,7 @@
 This file is a running log of interview questions and answers that emerged organically during the development of this MERN starter project. Each entry is tied to a real decision made in the codebase.
 
 When asked to help with this file, you should:
+
 - Add new Q&A entries in the correct category as they come up during development
 - Never remove existing entries
 - Keep answers concise — these are flashcard-style, not essays
@@ -13,6 +14,26 @@ When asked to help with this file, you should:
 ---
 
 ## Testing
+
+**Q: Where does JWT validation belong — frontend or backend?**
+A: Backend only. The frontend checks if a token _exists_ (truthy check) to decide whether to show protected UI. The backend cryptographically verifies the token's signature on every authenticated request. You never want JWT decoding logic in React — it's a security boundary, not a UI concern.
+
+---
+
+**Q: How do you test a React component that depends on context in RTL?**
+A: Wrap the component in the real `Context.Provider` with a fake value during render. The context object must be exported (not just the hook) so the test can use it as a Provider. Mock all required methods with `vi.fn()` / `vi.fn().mockResolvedValue(undefined)` and override only the relevant properties per test using a spread: `{ ...mockContext, loading: true }`.
+
+---
+
+**Q: What is the `renderX()` helper pattern in RTL tests?**
+A: A file-level function that wraps `render()` with all required providers (Router, Context, etc.) and accepts an overrides parameter. Keeps tests DRY without sharing state — each `it()` calls the helper fresh. Standard practice in RTL codebases.
+
+---
+
+**Q: Should you test CSS class names in RTL?**
+A: No. jsdom doesn't render CSS, so asserting a class string is present only proves a string was passed to an attribute — it doesn't prove anything visual changed for the user. If you rename a Tailwind class tomorrow, the test breaks but nothing changed for the user. That's a false positive. Visual regression testing requires a different tool (Storybook, Chromatic, Playwright screenshots).
+
+---
 
 **Q: When would you use `as unknown as T` in TypeScript?**
 A: When the two types have no structural overlap and TypeScript rejects a direct `as T` cast. For example, casting a plain object to a Mongoose `Document` type (which requires many interface methods). If a direct cast works without error, prefer it — `as unknown as T` is the nuclear escape hatch, not the default.
@@ -25,22 +46,24 @@ A: To keep scope as narrow as possible. File-level variables are visible to ever
 ---
 
 **Q: One assertion per test, or one scenario per test?**
-A: Both are valid. One assertion per test gives faster, more precise failure messages — you immediately know *what* broke. One scenario per test reduces duplication and reads like a story. The key is consistency and being able to justify the choice. "I keep tests focused on one behavior so failures are self-documenting" is a strong answer.
+A: Both are valid. One assertion per test gives faster, more precise failure messages — you immediately know _what_ broke. One scenario per test reduces duplication and reads like a story. The key is consistency and being able to justify the choice. "I keep tests focused on one behavior so failures are self-documenting" is a strong answer.
 
 ---
 
 **Q: How do you test a chained method call like `res.status(401).json({ message: "..." })`?**
 A: Save the return value of the first spy so both the implementation and the assertion reference the same object:
+
 ```typescript
 const jsonMock = { json: vi.fn() };
 const res = { status: vi.fn().mockReturnValue(jsonMock) };
 ```
+
 If you use `mockReturnValue` with an inline object, each call to `status()` returns a brand new object — the `json` spy your code called and the one you assert on would be different instances.
 
 ---
 
 **Q: Why does TypeScript make shape tests redundant?**
-A: TypeScript return types are enforced at compile time. If a function is typed to return `{ userId: string; email: string }`, a test asserting those properties exist adds no value — TypeScript already guarantees it. Tests should cover *behavior*, not types.
+A: TypeScript return types are enforced at compile time. If a function is typed to return `{ userId: string; email: string }`, a test asserting those properties exist adds no value — TypeScript already guarantees it. Tests should cover _behavior_, not types.
 
 ---
 

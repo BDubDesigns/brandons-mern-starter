@@ -9,12 +9,12 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { loading, token } = useAuth();
   const navigate = useNavigate();
-  // useEffect: On component mount and whenever loading/token changes, check if user is authenticated
+  // UseEffect: On component mount and whenever loading/token changes, check if user is authenticated
   useEffect(() => {
     if (!loading && !token) {
       navigate("/login");
     }
-  }, [loading, token, navigate]); // we include navigate in the dependency array to avoid potential issues with stale closures, even though navigate is stable from useNavigate
+  }, [loading, token, navigate]); // We include navigate in the dependency array to avoid potential issues with stale closures, even though navigate is stable from useNavigate
 
   if (loading) {
     return <div>Loading...</div>;

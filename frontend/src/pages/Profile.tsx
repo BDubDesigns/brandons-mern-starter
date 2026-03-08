@@ -9,13 +9,13 @@ import { getFieldErrors } from "../utils/getFieldErrors";
 // Define interface for form error states
 interface FormError {
   message: string;
-  errors?: ValidationError[]; // we can have both a general message and field-specific errors, so we include both in the FormError interface
+  errors?: ValidationError[]; // We can have both a general message and field-specific errors, so we include both in the FormError interface
 }
 
 export const Profile = () => {
   const auth = useAuth();
 
-  // password form state
+  // Password form state
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -25,7 +25,7 @@ export const Profile = () => {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
 
-  // email form state
+  // Email form state
   const [emailForm, setEmailForm] = useState({
     newEmail: "",
     password: "",
@@ -34,11 +34,11 @@ export const Profile = () => {
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailSuccess, setEmailSuccess] = useState(false);
 
-  // password form handler
+  // Password form handler
   const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault(); // prevent default form submission behavior
-    setPasswordError(null); // clear previous errors
-    setPasswordSuccess(false); // reset success state
+    e.preventDefault(); // Prevent default form submission behavior
+    setPasswordError(null); // Clear previous errors
+    setPasswordSuccess(false); // Reset success state
     // frontend validation: confirm passwords match here before calling backend
     if (passwordForm.newPassword !== passwordForm.confirmNewPassword) {
       setPasswordError({ message: "New passwords do not match" });
@@ -51,7 +51,7 @@ export const Profile = () => {
         passwordForm.currentPassword,
         passwordForm.newPassword,
       );
-      // success - reset form and show success message
+      // Success - reset form and show success message
       setPasswordForm({
         currentPassword: "",
         newPassword: "",
@@ -59,21 +59,21 @@ export const Profile = () => {
       });
       setPasswordSuccess(true);
     } catch (error) {
-      setPasswordError(error as FormError); // we use as to cast the error to FormError type, because we know the backend sends errors in that format
+      setPasswordError(error as FormError); // We use as to cast the error to FormError type, because we know the backend sends errors in that format
     } finally {
       setPasswordLoading(false);
     }
   };
 
-  // email form handler
+  // Email form handler
   const handleEmailChange = async (e: React.FormEvent) => {
-    e.preventDefault(); // prevent default form submission behavior
-    setEmailError(null); // clear previous errors
-    setEmailSuccess(false); // reset success state
+    e.preventDefault(); // Prevent default form submission behavior
+    setEmailError(null); // Clear previous errors
+    setEmailSuccess(false); // Reset success state
     setEmailLoading(true);
     try {
       await auth.updateEmail(emailForm.newEmail, emailForm.password);
-      // success - reset form and show success message
+      // Success - reset form and show success message
       setEmailForm({
         newEmail: "",
         password: "",
@@ -133,7 +133,7 @@ export const Profile = () => {
               }
             />
             {passwordError &&
-              !passwordError.errors && ( // only show the generic error message when no field-specific errors
+              !passwordError.errors && ( // Only show the generic error message when no field-specific errors
                 <div className="text-text-error">{passwordError.message}</div>
               )}
 
@@ -182,7 +182,7 @@ export const Profile = () => {
               }
             />
             {emailError &&
-              !emailError.errors && ( // only show the generic error message when no field-specific errors
+              !emailError.errors && ( // Only show the generic error message when no field-specific errors
                 <div className="text-text-error">{emailError.message}</div>
               )}
 

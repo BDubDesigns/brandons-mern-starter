@@ -7,7 +7,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     return stored === "light" || stored === "dark" ? stored : null;
   });
 
-  // os preference state
+  // Os preference state
   const [osPreference, setOsPreference] = useState<"light" | "dark">(() => {
     return window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
@@ -16,14 +16,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   const actualTheme = choice === null ? osPreference : choice;
 
-  // sync choice to localstorage
+  // Sync choice to localstorage
   useEffect(() => {
     if (choice === null) {
       localStorage.removeItem("themeChoice");
     } else {
       localStorage.setItem("themeChoice", choice);
     }
-  }, [choice]); // we only want to update localStorage when the user explicitly changes their choice, not on every render
+  }, [choice]); // We only want to update localStorage when the user explicitly changes their choice, not on every render
 
   // media query listener for os preference changes
   useEffect(() => {
@@ -35,7 +35,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       mediaQuery.removeEventListener("change", handleChange);
     };
-  }, []); // empty dependency array because we only want to set up the listener once on mount
+  }, []); // Empty dependency array because we only want to set up the listener once on mount
 
   // useEffect that watches actualTheme and applies it to document.documentElement
   useEffect(() => {
@@ -46,7 +46,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [actualTheme]);
 
-  // function to cycle theme
+  // Function to cycle theme
   const cycleTheme = () => {
     setChoice((prev) => {
       if (prev === "light") return "dark";

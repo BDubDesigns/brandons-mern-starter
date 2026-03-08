@@ -9,7 +9,7 @@ import { useState, useEffect, ReactNode, useCallback } from "react";
 import apiClient from "../api/client"; // Axios instance for making API calls to backend
 import axios from "axios";
 
-// define generic error message for auth operations to avoid revealing sensitive info
+// Define generic error message for auth operations to avoid revealing sensitive info
 const genericErrorMessage = "An error occurred. Please try again.";
 
 // Transform backend user object: rename _id to id for consistency with frontend conventions
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       // Call backend to get current user data
-      const response = await apiClient.get("/auth/me"); // we don't need to pass the token here because apiClient already includes it in the Authorization header
+      const response = await apiClient.get("/auth/me"); // We don't need to pass the token here because apiClient already includes it in the Authorization header
 
       const { user } = response.data; // Extract user data from response
       setUser(transformUser(user)); // Update state with user data
@@ -74,17 +74,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Login: Call POST /api/auth/login with email/password, store token/user in state and localStorage
   const login = async (email: string, password: string) => {
     setLoading(true); // Set loading to true at the start of the login process - show spinner / prevent other requests
-    setError(null); // clear previous errors before a new login attempt - otherwise old error messages would persist when trying to login again after a failure
+    setError(null); // Clear previous errors before a new login attempt - otherwise old error messages would persist when trying to login again after a failure
 
     // try-catch block to handle async API call and potential errors
     try {
-      // make api call to backend login endpoint with email and password
+      // Make API call to backend login endpoint with email and password
       const response = await apiClient.post("/auth/login", { email, password });
-      // on success, backend returns { token, user }
-      const { token, user } = response.data; // extract token and user data from response
-      // store token in localStorage for persistence across page reloads
+      // On success, backend returns { token, user }
+      const { token, user } = response.data; // Extract token and user data from response
+      // Store token in localStorage for persistence across page reloads
       localStorage.setItem("token", token);
-      // update state with token and user data
+      // Update state with token and user data
       setToken(token);
       setUser(transformUser(user));
     } catch (error) {
@@ -148,11 +148,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email,
         password,
       });
-      // on success, backend returns { token, user }
-      const { token, user } = response.data; // extract token and user data from response
+      // On success, backend returns { token, user }
+      const { token, user } = response.data; // Extract token and user data from response
       // store token in localStorage for persistence across page reloads
       localStorage.setItem("token", token);
-      // update state with token and user data
+      // Update state with token and user data
       setToken(token);
       setUser(transformUser(user));
     } catch (error) {

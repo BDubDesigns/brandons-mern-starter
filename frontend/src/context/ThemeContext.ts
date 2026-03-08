@@ -7,11 +7,11 @@ export interface ThemeContextType {
   cycleTheme: () => void; // Cycle through light, dark, os
 }
 
-// create the context
+// Create the context
 export const ThemeContext = createContext<ThemeContextType | undefined>(
   undefined,
 );
-// custom hook to use the ThemeContext
+// Custom hook to use the ThemeContext
 export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
   if (!context) {

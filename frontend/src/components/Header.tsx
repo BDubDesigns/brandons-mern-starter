@@ -2,22 +2,22 @@ import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useState } from "react";
 import { Link } from "react-router";
-// import icons
+// Import icons
 import { MdBrightness7, MdBrightness4, MdBrightnessAuto } from "react-icons/md";
 import { GiHamburgerMenu } from "react-icons/gi";
 
-// helper function to get icon for theme choice
+// Helper function to get icon for theme choice
 const getThemeIcon = (choice: "light" | "dark" | null) => {
   if (choice === "light") return <MdBrightness7 size="24" />;
   if (choice === "dark") return <MdBrightness4 size="24" />;
-  return <MdBrightnessAuto size="24" />; // null means "os"
+  return <MdBrightnessAuto size="24" />; // Null means "os"
 };
 
 export const Header = () => {
-  // get auth and theme context
+  // Get auth and theme context
   const { user, logout } = useAuth();
   const { choice, cycleTheme } = useTheme();
-  // hambuger menu state (for mobile)
+  // Hambuger menu state (for mobile)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Define the visual style for interactive elements (Buttons/Links)
@@ -25,7 +25,7 @@ export const Header = () => {
   const interactiveClass =
     "flex h-full w-full items-center p-2 m-2 rounded-lg border-2 border-border bg-interactive hover:bg-interactive-hover text-text cursor-pointer";
 
-  // theme button element
+  // Theme button element
   const themeButton = (
     <button
       className={interactiveClass}
@@ -36,7 +36,7 @@ export const Header = () => {
     </button>
   );
 
-  // conditionally generate a list of nav items based on auth state
+  // Conditionally generate a list of nav items based on auth state
   const navItems = user
     ? [
         { label: user.name, type: "span" },

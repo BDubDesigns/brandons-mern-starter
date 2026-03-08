@@ -13,17 +13,17 @@ export const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
-  // call useAuth once and save the returned context value to avoid multiple calls and potential performance issues
+  // Call useAuth once and save the returned context value to avoid multiple calls and potential performance issues
   const { token, loading, error, register, clearError } = useAuth();
-  // useNavigate hook from react-router to programmatically navigate after successful registration
+  // UseNavigate hook from react-router to programmatically navigate after successful registration
   const navigate = useNavigate();
 
-  // useEffect to redirect to dashboard after successful registration (when token changes from null to a valid token)
+  // UseEffect to redirect to dashboard after successful registration (when token changes from null to a valid token)
   useEffect(() => {
     if (token && !loading) {
       navigate("/dashboard");
     }
-  }, [token, loading, navigate]); // we include navigate in the dependency array to avoid potential issues with stale closures, even though navigate is stable from useNavigate
+  }, [token, loading, navigate]); // We include navigate in the dependency array to avoid potential issues with stale closures, even though navigate is stable from useNavigate
 
   // useEffect to clear errors on mount
   useEffect(() => {
@@ -34,7 +34,7 @@ export const Register = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent the default form submission behavior which would cause a page reload
     setValidationError(null);
-    // check that password and confirmPassword match before calling register
+    // Check that password and confirmPassword match before calling register
     if (password !== confirmPassword) {
       setValidationError("Passwords do not match");
       return;

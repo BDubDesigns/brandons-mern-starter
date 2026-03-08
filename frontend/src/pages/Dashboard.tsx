@@ -7,7 +7,7 @@ export const Dashboard = () => {
 
   const handleLogout = () => {
     auth.logout();
-    // automatically redirected to login by ProtectedRoute
+    // Automatically redirected to login by ProtectedRoute
   };
   if (auth.loading) {
     console.log("loading");
