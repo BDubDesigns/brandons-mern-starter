@@ -1,7 +1,7 @@
 import axios from "axios";
 // Create an Axios instance with default configuration
 const apiClient = axios.create({
-  baseURL: "http://localhost:5000/api", // Base URL for the backend API
+  baseURL: import.meta.env.VITE_API_URL, // Base URL for the backend API
   withCredentials: true, // Include cookies in requests for refresh token handling
 });
 
@@ -19,7 +19,7 @@ apiClient.interceptors.request.use(
   (error) => {
     // Handle request errors, Promise.reject propogates the error up the chain
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor: Handle errors, especially 401 (expired token)
@@ -63,7 +63,7 @@ apiClient.interceptors.response.use(
       }
     }
     return Promise.reject(error); // Pass error along for non-401 errors
-  }
+  },
 );
 
 export default apiClient;

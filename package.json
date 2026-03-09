@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +17,7 @@
     "cookie-parser": "^1.4.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@types/cookie-parser": "^1.4.10"
   }
 }

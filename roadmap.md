@@ -1,6 +1,6 @@
 # MERN Starter — Build Roadmap
 
-> **Status as of March 2026:** Phases 1–7 complete. Phase 8 (E2E) in progress. Phase 9 (Deployment) pending.
+> **Status as of March 2026:** Phases 1–8 complete. Phase 9 (Deployment) pending.
 
 ---
 
