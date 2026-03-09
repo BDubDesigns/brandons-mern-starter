@@ -1,3 +1,9 @@
+# MERN Starter — Build Roadmap
+
+> **Status as of March 2026:** Phases 1–7 complete. Phase 8 (E2E) in progress. Phase 9 (Deployment) pending.
+
+---
+
 # Phase 1: Repository & Folder Architecture
 
 **Goal:** Set up the empty skeleton so you aren't fighting file paths later.
@@ -278,73 +284,195 @@ Run `npm start` from the root. Both your backend API and your frontend Vite serv
 
 ---
 
-# Phase 7: Testing (Unit & E2E)
+# Phase 7: Testing (Unit & Integration) ✅
 
 **Goal:** Write tests that prove your code works and give you confidence to refactor.
 
-### Backend Testing Setup
+**Decision:** Vitest across both frontend and backend — one test runner to learn, native ESM + TypeScript support, zero config. Jest was rejected due to its poor ESM support.
 
-**Install Testing Tools:**
+### Backend Testing ✅
 
-```bash
-npm install --save-dev vitest @vitest/ui
-```
-
-**Create `vitest.config.ts`:**
-
-- Configure Vitest for backend testing with Node environment.
-
-**Create `tests/auth.test.ts`:**
-
-- **Test 1:** Register a new user successfully.
-- **Test 2:** Prevent duplicate email registration.
-- **Test 3:** Hash password correctly (bcrypt).
-- **Test 4:** Login with correct credentials returns a JWT.
-- **Test 5:** Login with wrong password returns an error.
-
-Use `describe` and `it` from Vitest for organizing tests.
-
-### Frontend Testing Setup
-
-**Install Testing Tools:**
+**Stack:** Vitest + Supertest + mongodb-memory-server
 
 ```bash
-npm install --save-dev vitest @vitest/ui @testing-library/react @testing-library/jest-dom jsdom
+npm install --save-dev vitest supertest @types/supertest mongodb-memory-server
 ```
 
-**Create `vitest.config.ts`:**
+**Why mongodb-memory-server?** Spins up an in-memory MongoDB instance per test suite — no real database needed, fully isolated, no cleanup required between runs.
 
-- Configure Vitest with jsdom environment for React testing.
+**Why Supertest?** Sends real HTTP requests to the Express app without starting a live server. Requires the app to be exported separately from `server.ts` — so `app.ts` exports the Express instance and `server.ts` calls `app.listen()`.
 
-**Create `src/tests/AuthContext.test.tsx`:**
+**Test structure:**
 
-- **Test 1:** AuthContext provides user state.
-- **Test 2:** Login function updates user state.
-- **Test 3:** Logout clears user state.
+```
+backend/src/tests/
+  helpers/
+  unit/
+    authMiddleware.test.ts    ← verifyJWT middleware (7 tests)
+    errorFormatter.test.ts    ← createFieldError utility (3 tests)
+    errorMiddleware.test.ts   ← error classification (5 tests)
+    tokenUtils.test.ts        ← JWT generation + formatting (7 tests)
+  integration/
+    auth.test.ts              ← all auth endpoints (43 tests)
+```
 
-### E2E Testing (Optional but Recommended)
+**Total backend tests: 65 across 5 files.**
 
-**Install E2E Tool:**
+### Frontend Testing ✅
+
+**Stack:** Vitest + React Testing Library + jsdom + MSW (Mock Service Worker)
 
 ```bash
-npm install --save-dev cypress
+npm install --save-dev vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom msw
 ```
 
-**Create `cypress/e2e/auth.cy.ts`:**
+**Why MSW?** Intercepts `fetch`/Axios calls at the network level in Node. Handlers are declared like Express routes — `http.post(url, resolver)` — and return `HttpResponse.json(body, { status })`. Default handlers live in `tests/mocks/handlers.ts`; per-test overrides use `server.use()`.
 
-- **Test 1:** User can register and receive verification email.
-- **Test 2:** User can click verification link and confirm account.
-- **Test 3:** User can log in and access dashboard.
-- **Test 4:** Logged-out users cannot access protected routes.
+**Key patterns established:**
 
-**Add to Root `package.json`:**
+- `getByRole`, `getByLabelText`, `findByText` — RTL queries (never query by CSS class)
+- `userEvent.setup()` + `await user.type/click()` — async user interaction
+- `findBy` for anything after an async operation (waits for DOM update)
+- `beforeEach(() => localStorage.clear())` — prevent cross-test state pollution
+- `MemoryRouter initialEntries={["/path"]}` — control starting URL in tests
+- `server.use()` — override a single handler for one test only
+
+**Test structure:**
+
+```
+frontend/src/tests/
+  mocks/
+    handlers.ts     ← default MSW handlers for all API endpoints
+    server.ts       ← MSW server instance (setupServer)
+  setup.ts          ← jest-dom matchers + MSW lifecycle (beforeAll/afterEach/afterAll)
+  unit/
+    Button.test.tsx
+    Divider.test.tsx
+    FormInput.test.tsx
+    getFieldErrors.test.ts
+    PageCard.test.tsx
+    ProtectedRoute.test.tsx
+  integration/
+    Dashboard.test.tsx
+    Login.test.tsx
+    Profile.test.tsx
+    Register.test.tsx
+```
+
+**Total frontend tests: 36 across 10 files.**
+
+### Combined Test Count
+
+| Layer                | Files  | Tests   |
+| -------------------- | ------ | ------- |
+| Backend unit         | 4      | 22      |
+| Backend integration  | 1      | 43      |
+| Frontend unit        | 6      | 20      |
+| Frontend integration | 4      | 36      |
+| **Total**            | **15** | **121** |
+
+**Run all tests:**
+
+```bash
+# Backend
+cd backend && npm test
+
+# Frontend
+cd frontend && npm test
+```
+
+---
+
+# Phase 8: E2E Testing (Playwright)
+
+**Goal:** Simulate a real user in a real browser against the running application.
+
+**Decision:** Playwright over Cypress. Playwright is the modern standard — faster, supports multiple browsers natively, better TypeScript integration, and no paid tier required for parallel runs.
+
+### Install Playwright
+
+From the root:
+
+```bash
+npm init playwright@latest
+```
+
+This scaffolds `playwright.config.ts`, an `e2e/` folder, and installs browser binaries.
+
+### Configure for Local Dev
+
+In `playwright.config.ts`:
+
+- Set `baseURL` to `http://localhost:5173` (Vite dev server)
+- Configure `webServer` to auto-start both frontend and backend before tests run
+
+### Critical Journeys to Test
+
+E2E tests cover only what unit and integration tests cannot — real browser behavior, cookies, actual redirects, and localStorage persistence across page loads.
+
+| Journey               | Steps                                                                          |
+| --------------------- | ------------------------------------------------------------------------------ |
+| **Registration flow** | Open `/register` → fill form → submit → land on `/dashboard` → see user name   |
+| **Login flow**        | Open `/login` → fill credentials → submit → land on `/dashboard`               |
+| **Logout flow**       | On `/dashboard` → click logout → land on `/login` → cannot access `/dashboard` |
+| **Protected route**   | Open `/dashboard` directly without token → redirected to `/login`              |
+| **Update password**   | On `/profile` → change password → logout → login with new password             |
+| **Update email**      | On `/profile` → change email → new email displayed                             |
+
+### Test Location
+
+```
+e2e/
+  auth.spec.ts       ← registration, login, logout, protected route
+  profile.spec.ts    ← update password, update email
+```
+
+### Add to Root `package.json`
 
 ```json
 "scripts": {
-  "test": "npm run test --prefix backend && npm run test --prefix frontend",
-  "test:e2e": "cypress open"
+  "test:e2e": "playwright test",
+  "test:e2e:ui": "playwright test --ui"
 }
 ```
+
+---
+
+# Phase 9: Deployment
+
+**Goal:** The app is live and accessible from a public URL.
+
+### Backend → Render or Railway
+
+Both are free-tier friendly and support Node.js with environment variables.
+
+1. Push backend to GitHub
+2. Connect repo to Render/Railway
+3. Set environment variables: `MONGO_URI`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `NODE_ENV=production`, `FRONTEND_URL`
+4. Set build command: `npm run build`
+5. Set start command: `node dist/server.js`
+
+### Frontend → Vercel
+
+1. Push frontend to GitHub
+2. Import repo in Vercel dashboard
+3. Set `VITE_API_URL` to your deployed backend URL
+4. Vercel handles the rest — automatic deploys on push to `main`
+
+### MongoDB → MongoDB Atlas
+
+If not already using Atlas, migrate from local MongoDB:
+
+1. Create a free cluster at [cloud.mongodb.com](https://cloud.mongodb.com)
+2. Whitelist `0.0.0.0/0` (all IPs) for Render/Railway compatibility
+3. Update `MONGO_URI` in your hosting environment variables
+
+### Post-Deployment Checklist
+
+- [ ] CORS configured to allow only the Vercel frontend URL in production
+- [ ] `NODE_ENV=production` disables stack traces in error responses
+- [ ] Refresh token cookie uses `secure: true` and `sameSite: none` in production
+- [ ] All environment variables set — no hardcoded secrets in codebase
 
 ---
 
@@ -445,15 +573,16 @@ mern-starter/
 └── .gitignore
 ```
 
-### What Happens Next (After Phase 7)
+### What Happens Next (After Phase 9)
 
-Once you have this starter template working, you can build on it:
+Once deployed, the starter template is complete. From here you can build on it:
 
-- Add more API endpoints (user profile, password reset, etc.)
-- Build real features on the Dashboard
-- Deploy to Vercel (frontend) and Render/Railway (backend)
-- Add more complex state management if needed
-- Implement logging and monitoring
-- Add API rate limiting and security headers
+- Add password reset flow (email token → new password)
+- Add email verification toggle (already scaffolded in the backend)
+- Build real features on the Dashboard and Profile pages
+- Add Zustand or Redux for non-auth global state as complexity grows
+- Add API rate limiting (`express-rate-limit`)
+- Add request logging (`morgan`) to production
+- Add monitoring (Sentry, LogRocket)
 
 **This starter template is your foundation. Everything else is extensions.**
