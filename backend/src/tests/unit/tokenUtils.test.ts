@@ -98,18 +98,17 @@ describe("setRefreshTokenCookie()", () => {
       refreshTokenString,
       expect.objectContaining({
         httpOnly: true,
-        sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       }),
     );
   });
 
-  describe("secure flag behavior", () => {
+  describe("environment-dependent cookie options", () => {
     afterEach(() => {
       vi.unstubAllEnvs();
     });
 
-    it("should set secure to true in production", () => {
+    it("should set secure: true and sameSite: 'none' in production", () => {
       vi.stubEnv("NODE_ENV", "production");
       const mockRes = createMockRes();
       const refreshTokenString = "ABC123abc";
@@ -117,11 +116,11 @@ describe("setRefreshTokenCookie()", () => {
       expect(mockRes.cookie).toHaveBeenCalledWith(
         "refreshToken",
         refreshTokenString,
-        expect.objectContaining({ secure: true }),
+        expect.objectContaining({ secure: true, sameSite: "none" }),
       );
     });
 
-    it("should set secure to false outside of production", () => {
+    it("should set secure: false and sameSite: 'strict' outside of production", () => {
       vi.stubEnv("NODE_ENV", "development");
       const mockRes = createMockRes();
       const refreshTokenString = "ABC123abc";
@@ -129,7 +128,7 @@ describe("setRefreshTokenCookie()", () => {
       expect(mockRes.cookie).toHaveBeenCalledWith(
         "refreshToken",
         refreshTokenString,
-        expect.objectContaining({ secure: false }),
+        expect.objectContaining({ secure: false, sameSite: "strict" }),
       );
     });
   });

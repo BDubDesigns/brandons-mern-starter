@@ -70,7 +70,7 @@ export const setRefreshTokenCookie = (res: Response, refreshToken: string) => {
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true, // prevents client-side JavaScript from accessing the cookie for security e.g. no xss attacks
     secure: process.env.NODE_ENV === "production", // only send cookie over HTTPS in production for security
-    sameSite: "strict", // prevent CSRF attacks by only sending cookie for same-site requests
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", // cross-site in production (Vercel + Render), same-site in development
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
   });
 };
