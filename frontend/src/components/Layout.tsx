@@ -4,7 +4,7 @@ import { Header } from "./Header";
 export const Layout = () => {
   return (
     // Layout with header and outlet for nested routes
-    <div className="text-text bg-background flex min-h-screen flex-col">
+    <div className="text-text bg-background flex min-h-dvh flex-col">
       <Header />
       <main className="flex-1 px-2">
         <Outlet />
