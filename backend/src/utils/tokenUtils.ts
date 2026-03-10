@@ -1,11 +1,27 @@
 // utility functions for generating JWT tokens, used in authController and authMiddleware
-import jwt from "jsonwebtoken";
+import jwt, { type SignOptions } from "jsonwebtoken";
 // import the IUser interface from the User model to use in the prepareAuthResponse function
 import type { IUser } from "../models/User.js";
 // import Response type from Express for type safety in the setRefreshTokenCookie function
 import type { Response } from "express";
 
 import type { JWTPayload, UserResponse } from "../types/index.js";
+
+// Helper function to parse an expiry string like "15m" or "7d" to ensure its a valid format for jwt.sign() options.
+const parseExpiry = (
+  value: string | undefined,
+  fallback: string,
+): NonNullable<SignOptions["expiresIn"]> => {
+  // your regex check here for /^\d+\s*(ms|s|m|h|d|w|y)$/
+  const regex = /^\d+\s*(ms|s|m|h|d|w|y)$/;
+  if (!value || !regex.test(value)) {
+    console.warn(
+      `Invalid expiry format: ${value}. Falling back to default: ${fallback}`,
+    );
+    return fallback as NonNullable<SignOptions["expiresIn"]>;
+  }
+  return value as NonNullable<SignOptions["expiresIn"]>;
+};
 
 // Helper function to generate a JWT and refresh token for a user, given their user ID and email
 export const generateTokens = (
@@ -24,11 +40,15 @@ export const generateTokens = (
   // create the payload with user ID and email
   const payload: JWTPayload = { userId, email };
 
-  // generate the jwt with a 15min expiration
-  const token = jwt.sign(payload, secret, { expiresIn: "15m" });
+  // generate the jwt with expiration from env, fallback to 15m
+  const token = jwt.sign(payload, secret, {
+    expiresIn: parseExpiry(process.env.JWT_EXPIRES_IN, "15m"),
+  });
 
-  // generate refresh token with 7 day expiration
-  const refreshToken = jwt.sign(payload, secret, { expiresIn: "7d" });
+  // generate refresh token with expiration from env, fallback to 7d
+  const refreshToken = jwt.sign(payload, secret, {
+    expiresIn: parseExpiry(process.env.JWT_REFRESH_EXPIRES_IN, "7d"),
+  });
 
   // return both tokens as an object
   return { token, refreshToken };
@@ -45,7 +65,9 @@ export const generateAccessToken = (userId: string, email: string): string => {
   }
 
   const payload: JWTPayload = { userId, email };
-  const token = jwt.sign(payload, secret, { expiresIn: "15m" });
+  const token = jwt.sign(payload, secret, {
+    expiresIn: parseExpiry(process.env.JWT_EXPIRES_IN, "15m"),
+  });
   return token;
 };
 
