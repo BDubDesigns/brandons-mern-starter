@@ -1,6 +1,6 @@
 # MERN Starter — Build Roadmap
 
-> **Status as of March 2026:** Phases 1–8 complete. Phase 9 (Deployment) pending.
+> **Status as of March 2026:** Phases 1–9 complete. Deployed to Render (backend) + Vercel (frontend).
 
 ---
 
@@ -581,7 +581,7 @@ Once deployed, the starter template is complete. From here you can build on it:
 - Add email verification toggle (already scaffolded in the backend)
 - Build real features on the Dashboard and Profile pages
 - Add Zustand or Redux for non-auth global state as complexity grows
-- Add API rate limiting (`express-rate-limit`)
+- ✅ Add API rate limiting (`express-rate-limit`) — applied to `/register` and `/login`
 - Add request logging (`morgan`) to production
 - Add monitoring (Sentry, LogRocket)
 
