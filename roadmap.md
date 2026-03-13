@@ -1,6 +1,6 @@
 # MERN Starter — Build Roadmap
 
-> **Status as of March 2026:** Phases 1–9 complete. Deployed to Render (backend) + Vercel (frontend).
+> **Status as of March 2026:** Phases 1–9 complete. Deployed to Render (backend) + Vercel (frontend). Phase 10 (Clerk Integration) in progress on `clerk-integration` branch.
 
 ---
 
@@ -586,3 +586,55 @@ Once deployed, the starter template is complete. From here you can build on it:
 - Add monitoring (Sentry, LogRocket)
 
 **This starter template is your foundation. Everything else is extensions.**
+
+---
+
+# Phase 10: Clerk Integration
+
+**Goal:** Replace the custom JWT auth system with Clerk. Clerk handles authentication, session management, user management, and social login out of the box. The rest of the app (MongoDB, Express structure, React pages) is unchanged.
+
+**Decision rationale:** The custom JWT system was built to learn auth fundamentals. See `auth_changes_spec.md` for the full stateful rotation design that was planned but not implemented — the spec itself is the portfolio artifact. Clerk is the production-grade choice for any real product.
+
+## What Gets Removed
+
+| File | Reason |
+|---|---|
+| `backend/src/controllers/authController.ts` | Clerk handles all auth logic |
+| `backend/src/routes/authRoutes.ts` | Replaced by a single Clerk webhook route |
+| `backend/src/middleware/authMiddleware.ts` | Replaced by `clerkMiddleware()` + `requireAuth()` |
+| `backend/src/middleware/authValidation.ts` | Clerk handles validation |
+| `backend/src/utils/tokenUtils.ts` | Clerk handles tokens |
+| `backend/src/models/User.ts` | Clerk owns identity data |
+| `frontend/src/context/AuthContext.tsx` | Replaced by `ClerkProvider` + `useUser()` |
+
+## What Stays
+
+- `app.ts` structure (add `clerkMiddleware()`, swap auth routes for webhook route)
+- `server.ts`, `config/db.ts`, `errorMiddleware.ts`
+- All frontend pages (swap `useAuth()` calls to Clerk equivalents)
+- MongoDB for all application data (referenced by Clerk's `userId`)
+
+## Key Pattern for App Data
+
+All MongoDB collections reference Clerk's `userId` (a string like `user_2abc123`) as a foreign key. Clerk owns identity; MongoDB owns everything else.
+
+```typescript
+// Example: any future app-data collection
+const SomeSchema = new Schema({
+  clerkUserId: { type: String, required: true, index: true },
+  // ... app-specific fields
+})
+```
+
+## Steps
+
+1. **Install packages** — `@clerk/clerk-react` (frontend), `@clerk/express` (backend)
+2. **Create Clerk app** — dashboard.clerk.com, get publishable key + secret key
+3. **Set env vars** — `VITE_CLERK_PUBLISHABLE_KEY` (frontend), `CLERK_SECRET_KEY` (backend)
+4. **Wrap frontend** — `<ClerkProvider>` in `main.tsx`, replace `AuthProvider`
+5. **Replace AuthContext** — `useUser()`, `useAuth()`, `<SignIn>`, `<SignUp>` components
+6. **Update Axios interceptor** — use `await getToken()` from Clerk instead of localStorage
+7. **Add `clerkMiddleware()`** to `app.ts`, replace `verifyJWT` with `requireAuth()`
+8. **Remove old backend files** — controllers, routes, models, utils
+9. **Update tests** — mock Clerk's `requireAuth()` in integration tests
+10. **Deploy** — add Clerk env vars to Render + Vercel dashboards
