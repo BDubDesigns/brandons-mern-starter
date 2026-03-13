@@ -597,15 +597,15 @@ Once deployed, the starter template is complete. From here you can build on it:
 
 ## What Gets Removed
 
-| File | Reason |
-|---|---|
-| `backend/src/controllers/authController.ts` | Clerk handles all auth logic |
-| `backend/src/routes/authRoutes.ts` | Replaced by a single Clerk webhook route |
-| `backend/src/middleware/authMiddleware.ts` | Replaced by `clerkMiddleware()` + `requireAuth()` |
-| `backend/src/middleware/authValidation.ts` | Clerk handles validation |
-| `backend/src/utils/tokenUtils.ts` | Clerk handles tokens |
-| `backend/src/models/User.ts` | Clerk owns identity data |
-| `frontend/src/context/AuthContext.tsx` | Replaced by `ClerkProvider` + `useUser()` |
+| File                                        | Reason                                            |
+| ------------------------------------------- | ------------------------------------------------- |
+| `backend/src/controllers/authController.ts` | Clerk handles all auth logic                      |
+| `backend/src/routes/authRoutes.ts`          | Replaced by a single Clerk webhook route          |
+| `backend/src/middleware/authMiddleware.ts`  | Replaced by `clerkMiddleware()` + `requireAuth()` |
+| `backend/src/middleware/authValidation.ts`  | Clerk handles validation                          |
+| `backend/src/utils/tokenUtils.ts`           | Clerk handles tokens                              |
+| `backend/src/models/User.ts`                | Clerk owns identity data                          |
+| `frontend/src/context/AuthContext.tsx`      | Replaced by `ClerkProvider` + `useUser()`         |
 
 ## What Stays
 
@@ -623,7 +623,7 @@ All MongoDB collections reference Clerk's `userId` (a string like `user_2abc123`
 const SomeSchema = new Schema({
   clerkUserId: { type: String, required: true, index: true },
   // ... app-specific fields
-})
+});
 ```
 
 ## Steps
