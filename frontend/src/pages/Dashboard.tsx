@@ -1,26 +1,31 @@
-import { useAuth } from "../context/AuthContext";
 import { Button } from "../components/Button";
 import { PageCard } from "../components/PageCard";
+import { useUser, useClerk } from "@clerk/react";
 
 export const Dashboard = () => {
-  const auth = useAuth();
+  const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
 
   const handleLogout = () => {
-    auth.logout();
-    // Automatically redirected to login by ProtectedRoute
+    signOut();
   };
-  if (auth.loading) {
+  if (!isLoaded) {
     console.log("loading");
     return <div>Loading...</div>;
   }
-  if (!auth.user) {
+  if (!user) {
     console.log("This shouldn't be possible.");
     return <div>This shouldn't be possible. Please contact support.</div>;
   }
   return (
-    <PageCard title="Dashboard" subtitle={`Welcome, ${auth.user.name}`}>
+    <PageCard
+      title="Dashboard"
+      subtitle={`Welcome, ${user.fullName ?? user.primaryEmailAddress?.emailAddress}`}
+    >
       <div>
-        <p className="mb-2 text-xl">Your email: {auth.user.email}</p>
+        <p className="mb-2 text-xl">
+          Your email: {user?.primaryEmailAddress?.emailAddress}
+        </p>
       </div>
       <div>
         <Button className="w-full" onClick={handleLogout}>

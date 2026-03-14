@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import errorMiddleware from "./middleware/errorMiddleware.js";
-import authRoutes from "./routes/authRoutes.js";
+import { clerkMiddleware } from "@clerk/express";
 
 const app = express();
 
@@ -12,14 +12,13 @@ app.use(
     credentials: true,
   }),
 );
+app.use(clerkMiddleware());
 app.use(express.json());
 app.use(cookieParser());
 
-app.get("/api/health", (req, res) => {
+app.get("/api/health", (_, res) => {
   res.status(200).json({ statusCode: 200, message: "Server is healthy" });
 });
-
-app.use("/api/auth", authRoutes);
 
 app.use(errorMiddleware);
 
