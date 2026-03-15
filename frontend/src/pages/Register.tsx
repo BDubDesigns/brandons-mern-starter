@@ -1,5 +1,10 @@
 import { SignUp } from "@clerk/react";
+import { PageCentered } from "../components/PageCentered";
 
 export const Register = () => {
-  return <SignUp path="/register" routing="path" signInUrl="/login" />;
+  return (
+    <PageCentered>
+      <SignUp path="/register" routing="path" signInUrl="/login" />
+    </PageCentered>
+  );
 };
