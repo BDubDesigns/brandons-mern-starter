@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import errorMiddleware from "../../middleware/errorMiddleware.js";
-import { createMockReq, createMockRes } from "../helpers/factories.js";
 import type { NextFunction } from "express";
+
+const createMockReq = () => ({});
+const createMockRes = () => {
+  const json = vi.fn();
+  const status = vi.fn().mockReturnValue({ json });
+  return { status, json };
+};
 
 describe("Error Middleware", () => {
   describe("when the error is a MongoDB duplicate key error", () => {
