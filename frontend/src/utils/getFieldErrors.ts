@@ -1,9 +1,6 @@
-// Import ValidationError type from AuthContext
-import { ValidationError } from "../context/AuthContext";
-
 export function getFieldErrors(
   field: string,
-  errors: ValidationError[] | undefined,
+  errors: { path: string; msg: string }[] | undefined,
 ) {
   // If errors is undefined, return undefined
   if (!errors) return undefined;

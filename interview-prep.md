@@ -69,3 +69,21 @@ A: TypeScript return types are enforced at compile time. If a function is typed 
 
 **Q: When is a `vi.fn()` inline sufficient vs needing to save the reference?**
 A: Plain calls (`next()`) — inline `vi.fn()` is fine, assert with `toHaveBeenCalled()` directly. Chained calls (`res.status(401).json(...)`) — save the inner mock so both the code under test and your assertion reference the same spy instance.
+
+---
+
+**Q: Why does adding a top-level `import` to a `.d.ts` file break `declare global` augmentations?**
+A: TypeScript treats any file containing a top-level `import` or `export` as a **module**. A `declare global` block inside a module only takes effect if that module is explicitly imported somewhere in the codebase. A `.d.ts` file with no imports is an **ambient script** — it is automatically included by TypeScript and its globals apply everywhere.
+
+Additionally, `declare global {}` is unnecessary in an ambient `.d.ts` file. Top-level interface declarations in an ambient file are already in the global scope — wrapping them in `declare global {}` is redundant. It's only required inside module files when you want to escape the module scope and augment globals.
+
+Fix for `Window` augmentation — correct ambient `.d.ts`:
+
+```ts
+// No top-level import → ambient file → top-level declarations are global
+interface Window {
+  Clerk?: import("@clerk/shared/types").BrowserClerk; // inline import() keeps file ambient
+}
+```
+
+The `import()` type expression (dynamic import type) does NOT make a file a module — only a top-level `import` statement does.

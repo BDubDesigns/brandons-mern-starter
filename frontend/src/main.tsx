@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
-import { AuthProvider } from "./context/AuthProvider";
+import { ClerkProvider } from "@clerk/react"; // Import ClerkProvider
 import { ThemeProvider } from "./context/ThemeProvider";
 import "./index.css";
 
@@ -10,10 +10,10 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <AuthProvider>
+    <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
       <ThemeProvider>
         <App />
       </ThemeProvider>
-    </AuthProvider>
+    </ClerkProvider>
   </React.StrictMode>,
 );

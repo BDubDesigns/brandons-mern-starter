@@ -1,28 +1,19 @@
-import { ReactNode, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router";
+import { ReactNode } from "react";
+import { RedirectToSignIn, useAuth } from "@clerk/react";
 
 interface ProtectedRouteProps {
   children: ReactNode;
 }
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { loading, token } = useAuth();
-  const navigate = useNavigate();
-  // UseEffect: On component mount and whenever loading/token changes, check if user is authenticated
-  useEffect(() => {
-    if (!loading && !token) {
-      navigate("/login");
-    }
-  }, [loading, token, navigate]); // We include navigate in the dependency array to avoid potential issues with stale closures, even though navigate is stable from useNavigate
+  const { isLoaded, isSignedIn } = useAuth(); // Check if the auth state is loaded and if the user is signed in
 
-  if (loading) {
+  if (!isLoaded) {
     return <div>Loading...</div>;
   }
-
-  if (!token) {
-    // Explicitly return null to prevent rendering the protected content while redirecting
-    return null; // We don't have to write null, but it makes it clear that we're intentionally not rendering anything here while redirecting to the login page
+  if (!isSignedIn) {
+    // If the user is not signed in, redirect to the sign-in page
+    return <RedirectToSignIn />;
   }
 
   return children;
