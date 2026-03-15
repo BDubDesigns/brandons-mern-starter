@@ -51,17 +51,6 @@ export default (
       .map((error) => error.message)
       .join(", ");
   }
-  // JWT error
-  else if (
-    err instanceof Error &&
-    "name" in err &&
-    err.name === "JsonWebTokenError"
-  ) {
-    // JWT errors indicate invalid tokens, so we set status to 401 Unauthorized
-    statusCode = 401;
-    message = "Invalid token";
-  }
-
   // for any other errors, we can check if it's an instance of Error and use its message, otherwise convert it to a string
   else if (err instanceof Error) {
     message = err.message;

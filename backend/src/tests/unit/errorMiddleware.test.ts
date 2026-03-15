@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import errorMiddleware from "../../middleware/errorMiddleware.js";
-import type { NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 
-const createMockReq = () => ({});
+const createMockReq = () => ({}) as Request;
 const createMockRes = () => {
   const json = vi.fn();
   const status = vi.fn().mockReturnValue({ json });
-  return { status, json };
+  return { status, json } as unknown as Response;
 };
 
 describe("Error Middleware", () => {
@@ -45,23 +45,6 @@ describe("Error Middleware", () => {
       expect(mockRes.status(400).json).toHaveBeenCalledWith({
         statusCode: 400,
         message: "Email is required, Password must be at least 6 characters",
-      });
-    });
-  });
-
-  describe("when the error is a JsonWebTokenError", () => {
-    it("should return a 401 status code and the message 'Invalid token'", () => {
-      const mockObject = Object.assign(new Error("JsonWebTokenError"), {
-        name: "JsonWebTokenError",
-        message: "JWT error occurred",
-      });
-      const mockReq = createMockReq();
-      const mockRes = createMockRes();
-      errorMiddleware(mockObject, mockReq, mockRes, vi.fn() as NextFunction);
-      expect(mockRes.status).toHaveBeenCalledWith(401);
-      expect(mockRes.status(401).json).toHaveBeenCalledWith({
-        statusCode: 401,
-        message: "Invalid token",
       });
     });
   });
