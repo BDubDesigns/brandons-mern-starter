@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "npm run kill-ports && concurrently --names backend,frontend --prefix-colors cyan,magenta \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "kill-ports": "kill-port 5000 3000",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
@@ -13,11 +15,9 @@
   "author": "",
   "license": "ISC",
   "type": "module",
-  "dependencies": {
-    "cookie-parser": "^1.4.7"
-  },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
-    "@types/cookie-parser": "^1.4.10"
+    "concurrently": "^9.2.1",
+    "kill-port": "^2.0.1"
   }
 }
