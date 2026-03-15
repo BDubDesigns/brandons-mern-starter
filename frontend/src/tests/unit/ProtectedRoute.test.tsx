@@ -1,46 +1,43 @@
 import { render, screen } from "@testing-library/react";
-import { ProtectedRoute } from "../../components/ProtectedRoute";
-import { describe, it, expect, vi } from "vitest";
 import { MemoryRouter } from "react-router";
-import { AuthContext, AuthContextType } from "../../context/AuthContext";
+import { describe, expect, it, vi } from "vitest";
+import { ProtectedRoute } from "../../components/ProtectedRoute";
 
-const mockAuthContext: AuthContextType = {
-  user: null,
-  token: null,
-  loading: false,
-  error: null,
-  login: vi.fn().mockResolvedValue(undefined),
-  logout: vi.fn().mockResolvedValue(undefined),
-  register: vi.fn().mockResolvedValue(undefined),
-  getCurrentUser: vi.fn().mockResolvedValue(undefined),
-  updatePassword: vi.fn().mockResolvedValue(undefined),
-  updateEmail: vi.fn().mockResolvedValue(undefined),
-  clearError: vi.fn(), // Void return, no mockResolvedValue needed
-};
+vi.mock("@clerk/react", () => ({
+  useAuth: vi.fn(),
+  RedirectToSignIn: () => null,
+}));
 
-const renderProtectedRoute = (authOverrides: Partial<AuthContextType> = {}) => {
+// Import the mocked useAuth function after mocking @clerk/react so we can control its return values in our tests
+import { useAuth } from "@clerk/react";
+
+// Helper function to mock useAuth with specific values
+const mockAuth = (overrides: Record<string, unknown>) =>
+  vi.mocked(useAuth).mockReturnValue(overrides as ReturnType<typeof useAuth>);
+
+const renderProtectedRoute = () =>
   render(
     <MemoryRouter>
-      <AuthContext.Provider value={{ ...mockAuthContext, ...authOverrides }}>
-        <ProtectedRoute>
-          <div>Protected Content</div>
-        </ProtectedRoute>
-      </AuthContext.Provider>
+      <ProtectedRoute>
+        <div>Protected Content</div>
+      </ProtectedRoute>
     </MemoryRouter>,
   );
-};
 
 describe("ProtectedRoute", () => {
-  it("renders 'Loading...' when loading is true", () => {
-    renderProtectedRoute({ loading: true });
+  it("renders Loading... when not loaded", () => {
+    mockAuth({ isLoaded: false, isSignedIn: false });
+    renderProtectedRoute();
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
-  it("renders nothing when loading is false and token is null", () => {
-    renderProtectedRoute({ loading: false, token: null });
+  it("does not render children when not signed in", () => {
+    mockAuth({ isLoaded: true, isSignedIn: false });
+    renderProtectedRoute();
     expect(screen.queryByText("Protected Content")).not.toBeInTheDocument();
   });
-  it("renders children when loading is false and token is present", () => {
-    renderProtectedRoute({ loading: false, token: "abc" });
+  it("renders children when signed in", () => {
+    mockAuth({ isLoaded: true, isSignedIn: true });
+    renderProtectedRoute();
     expect(screen.getByText("Protected Content")).toBeInTheDocument();
   });
 });

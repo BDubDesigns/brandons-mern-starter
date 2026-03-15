@@ -1,69 +1,77 @@
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router";
-import { AuthProvider } from "../../context/AuthProvider";
+import { MemoryRouter } from "react-router";
 import { Dashboard } from "../../pages/Dashboard";
-import { ProtectedRoute } from "../../components/ProtectedRoute";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 
-// Wraps Dashboard in the same way App.tsx does — ProtectedRoute guards the route,
-// AuthProvider supplies auth state, and MemoryRouter controls navigation.
-const renderDashboard = () => {
-  render(
-    <MemoryRouter initialEntries={["/dashboard"]}>
-      <AuthProvider>
-        <Routes>
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/login" element={<div>Login Page</div>} />
-        </Routes>
-      </AuthProvider>
-    </MemoryRouter>,
-  );
+vi.mock("@clerk/react", () => ({
+  useUser: vi.fn(),
+  useClerk: vi.fn(),
+}));
+
+import { useUser, useClerk } from "@clerk/react";
+
+const mockSignedInUser = () => {
+  vi.mocked(useUser).mockReturnValue({
+    isLoaded: true,
+    user: {
+      fullName: "Test User",
+      primaryEmailAddress: { emailAddress: "test@example.com" },
+    },
+  } as ReturnType<typeof useUser>);
+  vi.mocked(useClerk).mockReturnValue({
+    signOut: vi.fn(),
+  } as unknown as ReturnType<typeof useClerk>);
 };
 
 describe("Dashboard page", () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
+  it("displays user name and email when authenticated", () => {
+    mockSignedInUser();
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
 
-  it("displays user name and email when authenticated", async () => {
-    // Seed a token so AuthProvider fetches the current user from GET /api/auth/me
-    // MSW default handler returns { user: { name: "Test User", email: "test@example.com" } }
-    localStorage.setItem("token", "fake-token");
-    renderDashboard();
-
-    // Wait for the async getCurrentUser() call to resolve and user data to appear
-    expect(await screen.findByText(/Welcome, Test User/i)).toBeInTheDocument();
+    expect(screen.getByText(/Welcome, Test User/i)).toBeInTheDocument();
     expect(
-      await screen.findByText(/your email: test@example\.com/i),
+      screen.getByText(/your email: test@example\.com/i),
     ).toBeInTheDocument();
   });
 
-  it("redirects to /login when not authenticated", async () => {
-    // No token in localStorage — ProtectedRoute should navigate to /login
-    renderDashboard();
+  it("shows loading state when Clerk is not yet loaded", () => {
+    vi.mocked(useUser).mockReturnValue({
+      isLoaded: false,
+      user: null,
+    } as unknown as ReturnType<typeof useUser>);
+    vi.mocked(useClerk).mockReturnValue({
+      signOut: vi.fn(),
+    } as unknown as ReturnType<typeof useClerk>);
 
-    expect(await screen.findByText("Login Page")).toBeInTheDocument();
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 
-  it("navigates to /login after clicking logout", async () => {
-    localStorage.setItem("token", "fake-token");
-    renderDashboard();
+  it("calls signOut when logout button is clicked", async () => {
+    const signOut = vi.fn();
+    mockSignedInUser();
+    vi.mocked(useClerk).mockReturnValue({ signOut } as unknown as ReturnType<
+      typeof useClerk
+    >);
 
-    // Wait for the dashboard to fully load before interacting with it
-    await screen.findByText(/Welcome, Test User/i);
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
 
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: /logout/i }));
 
-    // After logout, token is cleared and ProtectedRoute redirects to /login
-    expect(await screen.findByText("Login Page")).toBeInTheDocument();
+    expect(signOut).toHaveBeenCalledOnce();
   });
 });

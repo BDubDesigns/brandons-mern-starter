@@ -1,4 +1,4 @@
-import { useAuth } from "../context/AuthContext";
+import { useUser, useClerk } from "@clerk/react";
 import { useTheme } from "../context/ThemeContext";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -15,7 +15,8 @@ const getThemeIcon = (choice: "light" | "dark" | null) => {
 
 export const Header = () => {
   // Get auth and theme context
-  const { user, logout } = useAuth();
+  const { user } = useUser();
+  const { signOut } = useClerk();
   const { choice, cycleTheme } = useTheme();
   // Hambuger menu state (for mobile)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,9 +40,12 @@ export const Header = () => {
   // Conditionally generate a list of nav items based on auth state
   const navItems = user
     ? [
-        { label: user.name, type: "span" },
+        {
+          label: user.fullName ?? user.primaryEmailAddress?.emailAddress,
+          type: "span",
+        },
         { label: "Profile", type: "link", to: "/profile" },
-        { label: "Logout", type: "button", onClick: logout },
+        { label: "Logout", type: "button", onClick: () => signOut() },
       ]
     : [
         { label: "Login", type: "link", to: "/login" },
@@ -68,7 +72,7 @@ export const Header = () => {
                 </Link>
               )}
               {item.type === "button" && item.onClick && (
-                <button className={interactiveClass} onClick={item.onClick}>
+                <button className={interactiveClass} onClick={() => signOut()}>
                   {item.label}
                 </button>
               )}

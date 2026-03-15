@@ -10,11 +10,9 @@ export const Dashboard = () => {
     signOut();
   };
   if (!isLoaded) {
-    console.log("loading");
     return <div>Loading...</div>;
   }
   if (!user) {
-    console.log("This shouldn't be possible.");
     return <div>This shouldn't be possible. Please contact support.</div>;
   }
   return (
@@ -24,7 +22,7 @@ export const Dashboard = () => {
     >
       <div>
         <p className="mb-2 text-xl">
-          Your email: {user?.primaryEmailAddress?.emailAddress}
+          Your email: {user.primaryEmailAddress?.emailAddress}
         </p>
       </div>
       <div>
