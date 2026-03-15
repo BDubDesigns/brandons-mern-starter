@@ -24,7 +24,7 @@ export const getCurrentUser = async (
       // First time this Clerk user hits our API — fetch their email from Clerk
       // and create a local document for app-specific data.
       const clerkUser = await clerkClient.users.getUser(userId);
-      const email = clerkUser.emailAddresses[0]?.emailAddress;
+      const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
 
       user = await User.create({ clerkId: userId, email });
     }
