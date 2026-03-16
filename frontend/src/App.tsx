@@ -6,6 +6,7 @@ import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard";
 import { Profile } from "./pages/Profile";
+import { Test } from "./pages/Test";
 
 export const App = () => {
   return (
@@ -35,6 +36,14 @@ export const App = () => {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/test"
+            element={
+              <ProtectedRoute>
+                <Test />
               </ProtectedRoute>
             }
           />
