@@ -22,11 +22,17 @@ export const getCurrentUser = async (
 
     if (!user) {
       // First time this Clerk user hits our API — fetch their email from Clerk
-      // and create a local document for app-specific data.
+      // and create or update a local document for app-specific data.
       const clerkUser = await clerkClient.users.getUser(userId);
       const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
 
-      user = await User.create({ clerkId: userId, email });
+      // Use findOneAndUpdate with upsert to handle email conflicts gracefully.
+      // If email exists from a previous Clerk account, link it to the new clerkId.
+      user = await User.findOneAndUpdate(
+        { email },
+        { clerkId: userId, email },
+        { upsert: true, new: true },
+      );
     }
 
     res.status(200).json(user);

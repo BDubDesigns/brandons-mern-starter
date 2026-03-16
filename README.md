@@ -27,7 +27,8 @@ Fill in your values:
 
 ```
 MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/<dbname>?retryWrites=true&w=majority
-CLERK_SECRET_KEY=sk_test_...          # From https://dashboard.clerk.com → API Keys
+CLERK_SECRET_KEY=sk_test_...          # Secret key from https://dashboard.clerk.com → API Keys
+CLERK_PUBLISHABLE_KEY=pk_test_...     # Publishable key (required on backend too)
 FRONTEND_URL=http://localhost:3000     # For local dev; change for production
 NODE_ENV=development
 PORT=5000
@@ -140,6 +141,8 @@ This starter uses **Clerk** for authentication — a managed service handling si
 2. Create a new application
 3. Copy **Publishable Key** and **Secret Key** from **API Keys** page
 4. Paste into `.env` files (see Environment Setup above)
+   - ⚠️ **Important:** Backend requires **both** `CLERK_SECRET_KEY` and `CLERK_PUBLISHABLE_KEY`
+   - Frontend requires `VITE_CLERK_PUBLISHABLE_KEY`
 5. Update CORS in `backend/src/app.ts` if needed:
    ```typescript
    const isProduction = origin === process.env.FRONTEND_URL;
@@ -148,7 +151,7 @@ This starter uses **Clerk** for authentication — a managed service handling si
 ### How It Works
 
 - **Frontend:** Clerk components (`<SignIn>`, `<SignUp>`, `<UserProfile>`) embedded in React pages
-- **Backend:** Clerk middleware validates Bearer token in request headers
+- **Backend:** @clerk/express v2.0.4 requires both Publishable & Secret keys; middleware validates Bearer tokens in request headers
 - **Protected routes:** `ProtectedRoute` component redirects unauthenticated users to `/login`
 
 **Adding protected endpoints:**
@@ -269,6 +272,7 @@ cycleTheme(); // Cycles: light → dark → system
    ```
    MONGODB_URI=mongodb+srv://...
    CLERK_SECRET_KEY=sk_test_...
+   CLERK_PUBLISHABLE_KEY=pk_test_...
    FRONTEND_URL=https://yourdomain.com
    NODE_ENV=production
    PORT=5000
@@ -380,14 +384,14 @@ npm test:e2e:report   # Open HTML report
 
 ## Troubleshooting
 
-| Issue                                         | Solution                                                                              |
-| --------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Port 3000/5000 already in use                 | `npm run kill-ports`                                                                  |
-| Vite build fails on deploy (Vercel)           | Check `vite.config.ts` — ensure `strictPort: false` for production builds             |
-| "No matching export for request" (ES modules) | Check imports use `.js` extension: `import x from "y.js"`                             |
-| Clerk auth not working                        | Verify `CLERK_SECRET_KEY` and `VITE_CLERK_PUBLISHABLE_KEY` match your Clerk dashboard |
-| MongoDB connection fails                      | Check `MONGODB_URI` is correct, IP is whitelisted in Atlas                            |
-| CORS errors                                   | Update `FRONTEND_URL` in `backend/.env` to match frontend domain                      |
+| Issue                                         | Solution                                                                                                                                                                       |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Port 3000/5000 already in use                 | `npm run kill-ports`                                                                                                                                                           |
+| Vite build fails on deploy (Vercel)           | Check `vite.config.ts` — ensure `strictPort: false` for production builds                                                                                                      |
+| "No matching export for request" (ES modules) | Check imports use `.js` extension: `import x from "y.js"`                                                                                                                      |
+| Clerk auth not working                        | Verify both `CLERK_SECRET_KEY` and `CLERK_PUBLISHABLE_KEY` are set (both needed on backend), and `VITE_CLERK_PUBLISHABLE_KEY` on frontend. Check your Clerk dashboard matches. |
+| MongoDB connection fails                      | Check `MONGODB_URI` is correct, IP is whitelisted in Atlas                                                                                                                     |
+| CORS errors                                   | Update `FRONTEND_URL` in `backend/.env` to match frontend domain                                                                                                               |
 
 ---
 
